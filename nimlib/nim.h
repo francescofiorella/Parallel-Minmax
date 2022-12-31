@@ -15,24 +15,19 @@ typedef struct {
 } Nimply;
 
 typedef struct {
-    unsigned int numMoves;
-    Nimply** moves;
+    unsigned int numItems;
+    Nimply** array;
 } MovesArray;
 
-Nim* createNim(unsigned int numRows);
-
-void destroyNim(Nim* nim);
-
 Nimply* createNimply(unsigned int row, unsigned int numSticks);
-
 void destroyNimply(Nimply* nimply);
 
+Nim* createNim(unsigned int numRows);
+void destroyNim(Nim* nim);
+Nim* deepcopyNim(Nim* nim);
 bool isNotEnded(Nim* nim);
-
+void printRows(Nim* nim);
 void nimming(Nim* nim, Nimply* nimply);
-
-void destroyMovesArray(MovesArray* movesArray);
-
 MovesArray* possibleMoves(Nim* nim);
 
-void printRows(Nim* nim);
+void destroyMovesArray(MovesArray* moves);

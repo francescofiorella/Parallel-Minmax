@@ -1,18 +1,95 @@
 #include <stdlib.h>
 #include <cstdio>
 #include <time.h>
-#include "nim.h"
+#include "utils.h"
 
 void randomStrategy(Nim* nim) {
-    srand(time(NULL));
     MovesArray* moves = possibleMoves(nim);
 
-    if (moves->numMoves < 1) {
+    if (moves->numItems < 1) {
         fprintf(stderr, "There are no moves available!\n");
         exit(1);
     }
-    int r = rand() % moves->numMoves;
-    nimming(nim, moves->moves[r]);
+    
+    srand(time(NULL));
+    int r = rand() % moves->numItems;
+    nimming(nim, moves->array[r]);
 
     destroyMovesArray(moves);
+}
+
+Nimply* minmax(Nim* nim) {
+    Nimply* ply;
+    unsigned int maxStackSize = 10; /*TODO*/
+    // the max number of evaluations is equal to the available moves => the max num of moves is rows^2
+    unsigned int maxEvaluationsSize = nim->numRows * nim->numRows;
+    Stack* stack = createStack(maxStackSize);
+    StackEntry* entry = createStackEntry(NULL, 0, 0, 0, 0, 0, 0, NULL, NULL);
+    stackPush(stack, entry);
+    entry = createStackEntry(deepcopyNim(nim), -1, 1, 1, 0, -1, stack->stackSize-1, createResultArray(maxEvaluationsSize), NULL);
+    stackPush(stack, entry);
+
+    while (stack->stackSize > 1) {
+        entry = stackPop(stack);
+        if (entry->depth > 10) {
+            Result* resultPointer = stack->array[entry->stackIndex]->result;
+            if (resultPointer) {
+                destroyResult(resultPointer);
+            }
+            stack->array[entry->stackIndex]->result = createResult(NULL, -entry->player);
+            destroyStackEntry(entry);
+            continue;
+        }
+        if (!isNotEnded(entry->board)) {
+            Result* resultPointer = stack->array[entry->stackIndex]->result;
+            if (resultPointer) {
+                destroyResult(resultPointer);
+            }
+            stack->array[entry->stackIndex]->result = createResult(NULL, entry->player);
+            destroyStackEntry(entry);
+            continue;
+        }
+        MovesArray* moves = possibleMoves(entry->board);
+        if (entry->plyIndex != -1) {
+            ply = moves->array[entry->plyIndex];
+            int val = (entry->result)->val;
+            resultArrayPush(entry->evaluations, createResult(ply, val));
+            if (entry->player == 1) {
+                if (entry->beta > val) entry->beta = val;
+            } else {
+                if (entry->alpha < val) entry->alpha = val;
+            }
+            if (entry->plyIndex == moves->numItems - 1 || entry->beta <= entry->alpha) {
+                if (entry->player == 1) {
+                    (stack->array[entry->stackIndex])->result = minResultArray(entry->evaluations);
+                } else {
+                    (stack->array[entry->stackIndex])->result = maxResultArray(entry->evaluations);
+                }
+
+                destroyNim(entry->board);
+                destroyResult(entry->result);
+                free(entry);
+    
+                continue;
+            }
+        }
+        ply = moves->array[entry->plyIndex+1];
+        Nim* newBoard = deepcopyNim(entry->board);
+        nimming(newBoard, ply);
+        StackEntry* newEntry = createStackEntry(entry->board, entry->alpha, entry->beta, entry->player, entry->depth, entry->plyIndex + 1, entry->stackIndex, entry->evaluations, entry->result);
+        stackPush(stack, newEntry);
+        newEntry = createStackEntry(newBoard, entry->alpha, entry->beta, -(entry->player), entry->depth + 1, -1, stack->stackSize - 1, createResultArray(maxEvaluationsSize), NULL);
+        stackPush(stack, newEntry);
+        free(entry);
+        destroyMovesArray(moves);
+    }
+    entry = stackPop(stack);
+    ply = (entry->result)->ply;
+
+    destroyNim(entry->board);
+    destroyResultArray(entry->evaluations);
+    free(entry);
+    destroyStack(stack);
+
+    return ply;
 }

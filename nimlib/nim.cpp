@@ -2,6 +2,18 @@
 #include <stdlib.h>
 #include "nim.h"
 
+Nimply* createNimply(unsigned int row, unsigned int numSticks) {
+    Nimply* nimply;
+    nimply = (Nimply*)malloc(sizeof(Nimply));
+    nimply->row = row;
+    nimply->numSticks = numSticks;
+    return nimply;
+}
+
+void destroyNimply(Nimply* nimply) {
+    free(nimply);
+}
+
 Nim* createNim(unsigned int numRows) {
     Nim* nim;
     nim = (Nim*)malloc(sizeof(Nim));
@@ -26,16 +38,20 @@ void destroyNim(Nim* nim) {
     free(nim);
 }
 
-Nimply* createNimply(unsigned int row, unsigned int numSticks) {
-    Nimply* nimply;
-    nimply = (Nimply*)malloc(sizeof(Nimply));
-    nimply->row = row;
-    nimply->numSticks = numSticks;
-    return nimply;
-}
-
-void destroyNimply(Nimply* nimply) {
-    free(nimply);
+Nim* deepcopyNim(Nim* nim) {
+    Nim* copy;
+    copy = (Nim*)malloc(sizeof(Nim));
+    copy->numRows = nim->numRows;
+    copy->turn = nim->turn;
+    copy->rows = (unsigned int*)malloc(nim->numRows * sizeof(unsigned int));
+    if (!copy->rows) {
+        fprintf(stderr, "malloc failure\n");
+        exit(1);
+    }
+    for (int i = 0; i < nim->numRows; i++) {
+        copy->rows[i] = nim->rows[i];
+    }
+    return copy;
 }
 
 bool isNotEnded(Nim* nim) {
@@ -44,6 +60,14 @@ bool isNotEnded(Nim* nim) {
         sum = sum + nim->rows[i];
     }
     return sum != 0;
+}
+
+void printRows(Nim* nim) {
+    printf("Rows: %d", nim->rows[0]);
+    for (int i = 1; i < nim->numRows; i++) {
+        printf(", %d", nim->rows[i]);
+    }
+    printf("\n");
 }
 
 void nimming(Nim* nim, Nimply* nimply) {
@@ -63,20 +87,13 @@ void nimming(Nim* nim, Nimply* nimply) {
     nim->turn = 1 - nim->turn;
 }
 
-void destroyMovesArray(MovesArray* movesArray) {
-    for (int i = 0; i < movesArray->numMoves; i++) {
-        destroyNimply(movesArray->moves[i]);
-    }
-    free(movesArray);
-}
-
 MovesArray* possibleMoves(Nim* nim) {
-    MovesArray* movesArray;
-    movesArray = (MovesArray*)malloc(sizeof(MovesArray));
+    MovesArray* moves;
+    moves = (MovesArray*)malloc(sizeof(MovesArray));
 
     unsigned int maxMoves = nim->numRows * nim->numRows;
-    movesArray->moves = (Nimply**)malloc(maxMoves * sizeof(Nimply*));
-    if (!movesArray->moves) {
+    moves->array = (Nimply**)malloc(maxMoves * sizeof(Nimply*));
+    if (!moves->array) {
         fprintf(stderr, "malloc failure\n");
         exit(1);
     }
@@ -85,18 +102,18 @@ MovesArray* possibleMoves(Nim* nim) {
     for (int r = 0; r < nim->numRows; r++) {
         unsigned int c = nim->rows[r];
         for (int o = 1; o <= c; o++) {
-            movesArray->moves[index] = createNimply(r, o);
+            moves->array[index] = createNimply(r, o);
             index++;
         }
     }
-    movesArray->numMoves = index;
-    return movesArray;
+    moves->numItems = index;
+    return moves;
 }
 
-void printRows(Nim* nim) {
-    printf("Rows: %d", nim->rows[0]);
-    for (int i = 1; i < nim->numRows; i++) {
-        printf(", %d", nim->rows[i]);
+void destroyMovesArray(MovesArray* moves) {
+    for (int i = 0; i < moves->numItems; i++) {
+        destroyNimply(moves->array[i]);
     }
-    printf("\n");
+    free(moves->array);
+    free(moves);
 }
