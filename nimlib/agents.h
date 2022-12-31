@@ -1,0 +1,1 @@
+void randomStrategy(Nim* nim);
