@@ -15,8 +15,10 @@ Result* createResult(Nimply* ply, int val) {
 }
 
 void destroyResult(Result* result) {
-    destroyNimply(result->ply);
-    free(result);
+    if (result) {
+        destroyNimply(result->ply);
+        free(result);
+    }
 }
 
 ResultArray* createResultArray(unsigned int maxSize) {
@@ -37,13 +39,18 @@ ResultArray* createResultArray(unsigned int maxSize) {
 }
 
 void destroyResultArray(ResultArray* resultArray) {
-    if (resultArray->numItems > 0) {
-        for (int i = resultArray->numItems + 1; i >= 0; i--) {
-            destroyResult(resultArray->array[i]);
+    if (resultArray) {
+        if (resultArray->numItems > 0) {
+            for (int i = resultArray->numItems + 1; i >= 0; i--) {
+                destroyResult(resultArray->array[i]);
+            }
         }
+        if (resultArray->array) {
+            free(resultArray->array);
+        }
+        free(resultArray);
     }
-    free(resultArray->array);
-    free(resultArray);
+    
 }
 
 void resultArrayPush(ResultArray* resultArray, Result* result) {
@@ -113,10 +120,12 @@ StackEntry* createStackEntry(Nim* board, int alpha, int beta, int player, int de
 }
 
 void destroyStackEntry(StackEntry* stackEntry) {
-    destroyNim(stackEntry->board);
-    destroyResultArray(stackEntry->evaluations);
-    destroyResult(stackEntry->result);
-    free(stackEntry);
+    if (stackEntry) {
+        destroyNim(stackEntry->board);
+        destroyResultArray(stackEntry->evaluations);
+        destroyResult(stackEntry->result);
+        free(stackEntry);
+    }
 }
 
 Stack* createStack(unsigned int maxSize) {
@@ -137,13 +146,17 @@ Stack* createStack(unsigned int maxSize) {
 }
 
 void destroyStack(Stack* stack) {
-    if (stack->stackSize > 0) {
-        for (int i = stack->stackSize - 1; i >= 0; i--) {
-            destroyStackEntry(stack->array[i]);
+    if (stack) {
+        if (stack->stackSize > 0) {
+            for (int i = stack->stackSize - 1; i >= 0; i--) {
+                destroyStackEntry(stack->array[i]);
+            }
         }
+        if (stack->array) {
+            free(stack->array);
+        }
+        free(stack);
     }
-    free(stack->array);
-    free(stack);
 }
 
 void stackPush(Stack* stack, StackEntry* stackEntry) {

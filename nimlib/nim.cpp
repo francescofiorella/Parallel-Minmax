@@ -11,7 +11,13 @@ Nimply* createNimply(unsigned int row, unsigned int numSticks) {
 }
 
 void destroyNimply(Nimply* nimply) {
-    free(nimply);
+    if (nimply) {
+        free(nimply);
+    }
+}
+
+void printNimply(Nimply* nimply) {
+    printf("Row: %d, Num: %d\n", nimply->row, nimply->numSticks);
 }
 
 Nim* createNim(unsigned int numRows) {
@@ -34,8 +40,12 @@ Nim* createNim(unsigned int numRows) {
 }
 
 void destroyNim(Nim* nim) {
-    free(nim->rows);
-    free(nim);
+    if (nim) {
+        if (nim->rows) {
+            free(nim->rows);
+        }
+        free(nim);
+    }
 }
 
 Nim* deepcopyNim(Nim* nim) {
@@ -72,6 +82,7 @@ void printRows(Nim* nim) {
 
 void nimming(Nim* nim, Nimply* nimply) {
     if (nim->numRows <= nimply->row) {
+        printNimply(nimply);
         fprintf(stderr, "Not enougth rows!\n");
         exit(1);
     }
@@ -111,9 +122,13 @@ MovesArray* possibleMoves(Nim* nim) {
 }
 
 void destroyMovesArray(MovesArray* moves) {
-    for (int i = 0; i < moves->numItems; i++) {
-        destroyNimply(moves->array[i]);
+    if (moves) {
+        for (int i = 0; i < moves->numItems; i++) {
+            destroyNimply(moves->array[i]);
+        }
+        if (moves->array) {
+            free(moves->array);
+        }
+        free(moves);
     }
-    free(moves->array);
-    free(moves);
 }

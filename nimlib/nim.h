@@ -21,6 +21,7 @@ typedef struct {
 
 Nimply* createNimply(unsigned int row, unsigned int numSticks);
 void destroyNimply(Nimply* nimply);
+void printNimply(Nimply* nimply);
 
 Nim* createNim(unsigned int numRows);
 void destroyNim(Nim* nim);

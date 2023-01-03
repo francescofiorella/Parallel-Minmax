@@ -20,7 +20,7 @@ void randomStrategy(Nim* nim) {
 
 Nimply* minmax(Nim* nim) {
     Nimply* ply;
-    unsigned int maxStackSize = 10; /*TODO*/
+    unsigned int maxStackSize = 100; /*TODO*/
     // the max number of evaluations is equal to the available moves => the max num of moves is rows^2
     unsigned int maxEvaluationsSize = nim->numRows * nim->numRows;
     Stack* stack = createStack(maxStackSize);
@@ -32,21 +32,23 @@ Nimply* minmax(Nim* nim) {
     while (stack->stackSize > 1) {
         entry = stackPop(stack);
         if (entry->depth > 10) {
-            Result* resultPointer = stack->array[entry->stackIndex]->result;
-            if (resultPointer) {
-                destroyResult(resultPointer);
-            }
-            stack->array[entry->stackIndex]->result = createResult(NULL, -entry->player);
-            destroyStackEntry(entry);
+            destroyResult((stack->array[entry->stackIndex])->result);
+            (stack->array[entry->stackIndex])->result = createResult(NULL, -entry->player);
+
+            destroyNim(entry->board);
+            destroyResult(entry->result);
+            free(entry);
             continue;
         }
+        
         if (!isNotEnded(entry->board)) {
-            Result* resultPointer = stack->array[entry->stackIndex]->result;
-            if (resultPointer) {
-                destroyResult(resultPointer);
-            }
-            stack->array[entry->stackIndex]->result = createResult(NULL, entry->player);
-            destroyStackEntry(entry);
+            destroyResult((stack->array[entry->stackIndex])->result);
+
+            (stack->array[entry->stackIndex])->result = createResult(NULL, entry->player);
+
+            destroyNim(entry->board);
+            destroyResult(entry->result);
+            free(entry);
             continue;
         }
         MovesArray* moves = possibleMoves(entry->board);
@@ -66,6 +68,7 @@ Nimply* minmax(Nim* nim) {
                     (stack->array[entry->stackIndex])->result = maxResultArray(entry->evaluations);
                 }
 
+                // we need to preserve the evaluations
                 destroyNim(entry->board);
                 destroyResult(entry->result);
                 free(entry);
@@ -86,8 +89,9 @@ Nimply* minmax(Nim* nim) {
     entry = stackPop(stack);
     ply = (entry->result)->ply;
 
-    destroyNim(entry->board);
-    destroyResultArray(entry->evaluations);
+    // there is no need to destroy all the entry, because the pointers are set to NULL
+    // also, we need to preserve the Nimply object of the result
+    free(entry->result);
     free(entry);
     destroyStack(stack);
 

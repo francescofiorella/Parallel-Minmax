@@ -6,16 +6,28 @@
 #include "./nimlib/nim.h"
 #include "./nimlib/agents.h"
 
-#define NUM_ROWS 3
+#define NUM_ROWS 5
 
 int main(void) {
     Nim* nim = createNim(NUM_ROWS);
     printRows(nim);
 
-    randomStrategy(nim);
+    
+    Nimply* move;
+    while(isNotEnded(nim)) {
+        move = minmax(nim);
+        nimming(nim, move);
+        destroyNimply(move);
+        printf("Minmax: ");
+        printRows(nim);
 
-    printRows(nim);
-
+        if (isNotEnded(nim)) {
+            randomStrategy(nim);
+            printf("Random: ");
+            printRows(nim);
+        }
+    }
+    
     destroyNim(nim);
     return 0;
 }
