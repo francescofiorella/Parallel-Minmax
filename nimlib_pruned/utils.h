@@ -14,7 +14,7 @@ typedef struct {
 
 typedef struct {
     Nim* board;
-    int player, depth, plyIndex, stackIndex;
+    int alpha, beta, player, depth, plyIndex, stackIndex;
     ResultArray* evaluations;
     Result* result;
 } StackEntry;
@@ -34,7 +34,7 @@ void resultArrayPush(ResultArray* resultArray, Result* result);
 Result* minResultArray(ResultArray* resultArray);
 Result* maxResultArray(ResultArray* resultArray);
 
-StackEntry* createStackEntry(Nim* board, int player, int depth, int plyIndex, int stackIndex, ResultArray* evaluations, Result* result);
+StackEntry* createStackEntry(Nim* board, int alpha, int beta, int player, int depth, int plyIndex, int stackIndex, ResultArray* evaluations, Result* result);
 void destroyStackEntry(StackEntry* stackEntry);
 
 Stack* createStack(unsigned int maxSize) ;

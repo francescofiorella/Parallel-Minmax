@@ -24,14 +24,24 @@ Nimply* minmax(Nim* nim) {
     // the max number of evaluations is equal to the available moves => the max num of moves is rows^2
     unsigned int maxEvaluationsSize = nim->numRows * nim->numRows;
     Stack* stack = createStack(maxStackSize);
-    StackEntry* entry = createStackEntry(NULL, 0, 0, 0, 0, NULL, NULL);
+    StackEntry* entry = createStackEntry(NULL, 0, 0, 0, 0, 0, 0, NULL, NULL);
     stackPush(stack, entry);
-    entry = createStackEntry(deepcopyNim(nim), 1, 0, -1, stack->stackSize-1, createResultArray(maxEvaluationsSize), NULL);
+    entry = createStackEntry(deepcopyNim(nim), -1, 1, 1, 0, -1, stack->stackSize-1, createResultArray(maxEvaluationsSize), NULL);
     stackPush(stack, entry);
 
     // while there are moves to evaluate
     while (stack->stackSize > 1) {
         entry = stackPop(stack);
+        // stop if exceed maximum depth
+        if (entry->depth > 10) {
+            destroyResult((stack->array[entry->stackIndex])->result);
+            (stack->array[entry->stackIndex])->result = createResult(NULL, -entry->player);
+
+            destroyNim(entry->board);
+            destroyResult(entry->result);
+            free(entry);
+            continue;
+        }
         
         // stop if the game ended
         if (!isNotEnded(entry->board)) {
@@ -52,9 +62,14 @@ Nimply* minmax(Nim* nim) {
             // exploit the previous result calculation
             int val = (entry->result)->val;
             resultArrayPush(entry->evaluations, createResult(ply, val));
-            
-            // stop if it's the last move
-            if (entry->plyIndex == moves->numItems - 1) {
+            // update alpha or beta
+            if (entry->player == 1) {
+                if (entry->beta > val) entry->beta = val;
+            } else {
+                if (entry->alpha < val) entry->alpha = val;
+            }
+            // stop if it's the last move or it's time to prune
+            if (entry->plyIndex == moves->numItems - 1 || entry->beta <= entry->alpha) {
                 if (entry->player == 1) {
                     (stack->array[entry->stackIndex])->result = minResultArray(entry->evaluations);
                 } else {
@@ -74,10 +89,10 @@ Nimply* minmax(Nim* nim) {
         Nim* newBoard = deepcopyNim(entry->board);
         nimming(newBoard, ply);
         // push the previous state
-        StackEntry* newEntry = createStackEntry(entry->board, entry->player, entry->depth, entry->plyIndex + 1, entry->stackIndex, entry->evaluations, entry->result);
+        StackEntry* newEntry = createStackEntry(entry->board, entry->alpha, entry->beta, entry->player, entry->depth, entry->plyIndex + 1, entry->stackIndex, entry->evaluations, entry->result);
         stackPush(stack, newEntry);
         // push the current state (after making the move)
-        newEntry = createStackEntry(newBoard, -(entry->player), entry->depth + 1, -1, stack->stackSize - 1, createResultArray(maxEvaluationsSize), NULL);
+        newEntry = createStackEntry(newBoard, entry->alpha, entry->beta, -(entry->player), entry->depth + 1, -1, stack->stackSize - 1, createResultArray(maxEvaluationsSize), NULL);
         stackPush(stack, newEntry);
         free(entry);
         destroyMovesArray(moves);
