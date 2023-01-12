@@ -6,3 +6,11 @@ The aim is to create a parallel version of the minmax algorithm, developed durin
 
 The project is meant to be run on the Nvidia Jetson Nano; however it can be easily adapted to any kind of GPU.<br>
 A quick presentation of the project can be found in the [abstract](https://github.com/francescofiorella/nim_jetson_nano_minmax/blob/main/abstract.pdf).
+
+# Report structure:
+
+- Introduzione: spiega il progetto
+- Related Works: cosa c'è sull'argomento fino a quel momento
+- Proposed method: cosa abbiamo sviluppato noi, descrizione
+- Experimental results: misurazioni di performance, ecc...
+- Conclusion: includere anche possibili lavori futuri

@@ -16,19 +16,15 @@ typedef struct {
 
 typedef struct {
     unsigned int numItems;
-    Nimply** array;
+    Nimply* array;
 } MovesArray;
 
-Nimply* createNimply(unsigned int row, unsigned int numSticks);
-void destroyNimply(Nimply* nimply);
 void printNimply(Nimply* nimply);
-
-Nim* createNim(unsigned int numRows);
+void createNim(Nim* output, unsigned int numRows);
 void destroyNim(Nim* nim);
-Nim* deepcopyNim(Nim* nim);
+__device__ void deepcopyNim(Nim* nim, Nim* output, , unsigned int* outputRows);
+__device__ bool isNotEnded(Nim* nim);
 bool isNotEnded(Nim* nim);
 void printRows(Nim* nim);
-void nimming(Nim* nim, Nimply* nimply);
-MovesArray* possibleMoves(Nim* nim);
-
-void destroyMovesArray(MovesArray* moves);
+__device__ void nimming(Nim* nim, Nimply* nimply);
+__device__ void possibleMoves(Nim* nim, MovesArray* output);

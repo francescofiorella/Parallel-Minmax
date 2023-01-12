@@ -99,7 +99,7 @@ Result* maxResultArray(ResultArray* resultArray) {
     return max;
 }
 
-StackEntry* createStackEntry(Nim* board, int player, int depth, int plyIndex, int stackIndex, ResultArray* evaluations, Result* result) {
+StackEntry* createStackEntry(Nim* board, int alpha, int beta, int player, int depth, int plyIndex, int stackIndex, ResultArray* evaluations, Result* result) {
     StackEntry* stackEntry;
     stackEntry = (StackEntry*)malloc(sizeof(StackEntry));
     if (!stackEntry) {
@@ -107,6 +107,8 @@ StackEntry* createStackEntry(Nim* board, int player, int depth, int plyIndex, in
         exit(1);
     }
     stackEntry->board = board;
+    stackEntry->alpha = alpha;
+    stackEntry->beta = beta;
     stackEntry->player = player;
     stackEntry->depth = depth;
     stackEntry->plyIndex = plyIndex;
@@ -176,7 +178,7 @@ void stackPush(Stack* stack, StackEntry* stackEntry) {
 }
 
 StackEntry* stackPop(Stack* stack) {
-    if (stack-> stackSize < 1) {
+    if (stack->stackSize < 1) {
         fprintf(stderr, "The stack is empty!\n");
         exit(1);
     }
