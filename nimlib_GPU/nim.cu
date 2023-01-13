@@ -1,11 +1,9 @@
-#include <stdio.h>
-#include <iostream>
+#include <cstdio>
 #include <stdlib.h>
-#include <cmath>
 #include <cuda_runtime.h>
 #include "nim.cuh"
 
-void printNimply(Nimply* nimply) {
+__host__ __device__ void printNimply(Nimply* nimply) {
     printf("Row: %d, Num: %d\n", nimply->row, nimply->numSticks);
 }
 
@@ -18,8 +16,8 @@ void destroyNim(Nim* nim) {
     }
 }
 
-void createNim(Nim* output, unsigned int numRows) {
-    unsigned int rows[numRows]; // check if it is ok or it needs to be passed as argument
+void createNim(Nim* output, unsigned int* rows, unsigned int numRows) {
+    // unsigned int rows[numRows]; // check if it is ok or it needs to be passed as argument
     output->numRows = numRows;
     output->turn = 0;
     output->rows = rows;
@@ -37,7 +35,7 @@ __device__ void deepcopyNim(Nim* nim, Nim* output, unsigned int* outputRows) {
     }
 }
 
-__device__ bool isNotEnded(Nim* nim) {
+__host__ __device__ bool isNotEnded(Nim* nim) {
     unsigned int sum = 0;
     for (int i = 0; i < nim->numRows; i++) {
         sum = sum + nim->rows[i];
@@ -45,15 +43,7 @@ __device__ bool isNotEnded(Nim* nim) {
     return sum != 0;
 }
 
-bool isNotEnded(Nim* nim) {
-    unsigned int sum = 0;
-    for (int i = 0; i < nim->numRows; i++) {
-        sum = sum + nim->rows[i];
-    }
-    return sum != 0;
-}
-
-void printRows(Nim* nim) {
+__host__ __device__ void printRows(Nim* nim) {
     printf("Rows: %d", nim->rows[0]);
     for (int i = 1; i < nim->numRows; i++) {
         printf(", %d", nim->rows[i]);
@@ -61,24 +51,24 @@ void printRows(Nim* nim) {
     printf("\n");
 }
 
-__device__ void nimming(Nim* nim, Nimply* nimply) {
+__host__ __device__ void nimming(Nim* nim, Nimply* nimply) {
     if (nim->numRows <= nimply->row) {
-        fprintf(stderr, "Not enougth rows!\n");
-        exit(1);
+        printf("Not enougth rows!\n");
+        return;
     }
     if (nim->rows[nimply->row] < nimply->numSticks) {
-        fprintf(stderr, "Not enougth sticks!\n");
-        exit(1);
+        printf("Not enougth sticks!\n");
+        return;
     }
     if (nimply->numSticks < 1) {
-        fprintf(stderr, "Not a valid move!\n");
-        exit(1);
+        printf("Not a valid move!\n");
+        return;
     }
     nim->rows[nimply->row] = nim->rows[nimply->row] - nimply->numSticks;
     nim->turn = 1 - nim->turn;
 }
 
-__device__ void possibleMoves(Nim* nim, MovesArray* output) {
+__host__ __device__ void possibleMoves(Nim* nim, MovesArray* output) {
     unsigned int index = 0;
     for (int r = 0; r < nim->numRows; r++) {
         unsigned int c = nim->rows[r];
@@ -91,4 +81,29 @@ __device__ void possibleMoves(Nim* nim, MovesArray* output) {
         }
     }
     output->numItems = index;
+}
+
+void randomStrategy(Nim* nim) {
+    MovesArray* moves;
+    moves = (MovesArray*)malloc(sizeof(MovesArray));
+    if (!moves) {
+        fprintf(stderr, "malloc failure\n");
+        exit(1);
+    }
+
+    unsigned int maxMoves = nim->numRows * nim->numRows;
+    Nimply array[maxMoves];
+    moves->array = array;
+    possibleMoves(nim, moves);
+
+    if (moves->numItems < 1) {
+        fprintf(stderr, "There are no moves available!\n");
+        exit(1);
+    }
+    
+    srand(time(NULL));
+    int r = rand() % moves->numItems;
+    nimming(nim, &(moves->array[r]));
+
+    free(moves);
 }

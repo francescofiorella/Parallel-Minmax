@@ -19,12 +19,12 @@ typedef struct {
     Nimply* array;
 } MovesArray;
 
-void printNimply(Nimply* nimply);
-void createNim(Nim* output, unsigned int numRows);
+__host__ __device__ void printNimply(Nimply* nimply);
+void createNim(Nim* output, unsigned int* rows, unsigned int numRows);
 void destroyNim(Nim* nim);
-__device__ void deepcopyNim(Nim* nim, Nim* output, , unsigned int* outputRows);
-__device__ bool isNotEnded(Nim* nim);
-bool isNotEnded(Nim* nim);
-void printRows(Nim* nim);
-__device__ void nimming(Nim* nim, Nimply* nimply);
-__device__ void possibleMoves(Nim* nim, MovesArray* output);
+__device__ void deepcopyNim(Nim* nim, Nim* output, unsigned int* outputRows);
+__host__ __device__ bool isNotEnded(Nim* nim);
+__host__ __device__ void printRows(Nim* nim);
+__host__ __device__ void nimming(Nim* nim, Nimply* nimply);
+__host__ __device__ void possibleMoves(Nim* nim, MovesArray* output);
+void randomStrategy(Nim* nim);

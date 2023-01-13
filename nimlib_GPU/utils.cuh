@@ -1,6 +1,6 @@
 #pragma once
 
-#include "nim.h"
+#include "nim.cuh"
 
 typedef struct {
     Nimply ply;

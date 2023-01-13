@@ -29,11 +29,25 @@ int main_GPU(void) {
     Nimply* move; // the move on the host CPU machine
     Nimply* dev_move; // the move for the GPU device
 
+    ResultArray* results;
+    ResultArray* dev_results;
+    Result* dev_resultArray;
+    MovesArray* moves;
+    MovesArray* dev_moves;
+    Nimply* dev_plys;
+
     // Allocate the memory on the CPU, initialize nim
     nim = (Nim*)malloc(sizeof(Nim));
-    nim->rows = (unsigned int*)malloc(NUM_ROWS * sizeof(unsigned int));
-    createNim(nim, NUM_ROWS);
+    unsigned int rows[NUM_ROWS];
+    createNim(nim, rows, NUM_ROWS);
     printRows(nim);
+
+    results = (ResultArray*)malloc(sizeof(ResultArray));
+    results->numItems = 0;
+    results->array = (Result*)malloc(NUM_ROWS*NUM_ROWS * sizeof(Result));
+    moves = (MovesArray*)malloc(sizeof(MovesArray));
+    moves->numItems = 0;
+    moves->array = (Nimply*)malloc(NUM_ROWS*NUM_ROWS * sizeof(Nimply));
 
     int a = 0;
     // Execute the minmax on the GPU device iteratively, until the game ends
@@ -45,12 +59,22 @@ int main_GPU(void) {
         cudaMalloc( (void**)&dev_rows, NUM_ROWS * sizeof(unsigned int) );
         cudaMalloc( (void**)&dev_move, sizeof(Nimply) );
 
+        cudaMalloc( (void**)&dev_results, sizeof(ResultArray) );
+        cudaMalloc( (void**)&dev_resultArray, NUM_ROWS*NUM_ROWS * sizeof(Result) );
+        cudaMalloc( (void**)&dev_moves, sizeof(MovesArray) );
+        cudaMalloc( (void**)&dev_plys, NUM_ROWS*NUM_ROWS * sizeof(Nimply) );
+
         // Copy nim to the GPU
         cudaMemcpy( dev_nim, nim, sizeof(Nim), cudaMemcpyHostToDevice );
         cudaMemcpy( dev_rows, nim->rows, NUM_ROWS * sizeof(unsigned int), cudaMemcpyHostToDevice );
 
+        cudaMemcpy( dev_results, results, sizeof(ResultArray), cudaMemcpyHostToDevice );
+        cudaMemcpy( dev_resultArray, results->array, NUM_ROWS*NUM_ROWS * sizeof(Result), cudaMemcpyHostToDevice );
+        cudaMemcpy( dev_moves, moves, sizeof(MovesArray), cudaMemcpyHostToDevice );
+        cudaMemcpy( dev_plys, moves->array, NUM_ROWS*NUM_ROWS * sizeof(Nimply), cudaMemcpyHostToDevice );
+
         // Execute the minmax on the GPU device
-        GPU_minmax<<<grid, thread>>>(dev_nim, dev_rows, dev_move);
+        GPU_minmax<<<grid, thread>>>(dev_nim, dev_rows, dev_results, dev_resultArray, dev_moves, dev_plys, dev_move);
 
         // Copy the move back from the GPU to the CPU
         cudaMemcpy( move, dev_move, sizeof(Nimply), cudaMemcpyDeviceToHost );
@@ -80,7 +104,7 @@ int main_GPU(void) {
     return 0;
 }
 
-int main_CPU(void) {
+/* int main_CPU(void) {
     // remember to include ONLY the CPU library [nimlib/nimlib.h]
 
     Nim* nim = createNim(NUM_ROWS);
@@ -104,4 +128,4 @@ int main_CPU(void) {
     
     destroyNim(nim);
     return 0;
-}
+} */

@@ -1,13 +1,16 @@
-#include <stdio.h>
-#include <iostream>
+#include <cstdio>
 #include <stdlib.h>
-#include <cmath>
 #include <cuda_runtime.h>
-#include "minmax.cuh"
+#include "nimlib.cuh"
 
-__global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
-    // Associate rows to nim
+__global__ void GPU_minmax(Nim* nim, unsigned int* rows, ResultArray* results, Result* resultArray, MovesArray* moves, Nimply* plys, Nimply* ply) {
+    // Associate arrays to classes
     nim->rows = rows;
+    results->array = resultArray;
+    moves->array = plys;
+
+    const unsigned int numRows = 5;
+    const unsigned int maxMoves = 25; 
 
     // Associate thread id and block id
     unsigned int bid = blockIdx.x;
@@ -19,31 +22,18 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
     // 2 - Calculate the shared and the global result
     unsigned int stopComputation = 0;
     
-    unsigned int maxMoves = nim->numRows * nim->numRows;
-
-    // init the results array
-    __device__ ResultArray results;
-    __device__ Result resultArray[maxMoves];
-    results.array = resultArray;
-
-    // init the nimply array
-    __device__ MovesArray moves;
-    __device__ Nimply plys[maxMoves];
-    moves.array = plys;
-
-    
     if (bid == 0 && tid == 0) {
         // initialize the global output
         // the max number of results is equal to the available moves => the max num of moves is rows^2
         
         // calculate the first moves
         possibleMoves(nim, moves);
-        results.numItems = moves.numItems;
+        results->numItems = moves->numItems;
     }
     
     __syncthreads();
     
-    if (bid >= moves.numItems)
+    if (bid >= moves->numItems)
         return;
     
     __syncthreads();
@@ -53,22 +43,23 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
     sharedMoves.array = sharedPlys;
     
     __shared__ Nim sharedBoard;
-    __shared__ unsigned int sharedRows[nim.numRows]
-    __shared__ int sharedPlayer = 1;
+    __shared__ unsigned int sharedRows[numRows];
+    __shared__ int sharedPlayer;
+    sharedPlayer = 1;
     if (tid == 0) {
         // calculate the new board and invert the current player
-        deepcopyNim(nim, sharedBoard, sharedRows);
+        deepcopyNim(nim, &sharedBoard, sharedRows);
         // select the move from bid
         // calculate the resulting board for the current move
-        nimming(sharedBoard, moves.array[bid]);
+        nimming(&sharedBoard, &(moves->array[bid]));
         sharedPlayer = 1 - sharedPlayer;
 
         // check if the game is ended, if yes update the results
-        if (!isNotEnded(sharedBoard)) {
+        if (!isNotEnded(&sharedBoard)) {
             Result res;
-            res.ply = moves.array[bid];
+            res.ply = moves->array[bid];
             res.val = sharedPlayer;
-            results.array[bid] = res;
+            results->array[bid] = res;
 
             // jump to min/max ending evaluation if bid == 0 and tid == 0
             if (bid == 0 && tid == 0)
@@ -76,7 +67,7 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
         }
 
         // calculate the new moves on shared array
-        possibleMoves(sharedBoard, sharedMoves);
+        possibleMoves(&sharedBoard, &sharedMoves);
     }
 
     __syncthreads();
@@ -87,22 +78,23 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
 
     // __syncthreads();
 
+    Nim newBoard;
+    int player = sharedPlayer;
+    __shared__ ResultArray sharedResults;
+    __shared__ Result sharedResultArray[maxMoves];
     if (stopComputation == 0) {
-        __shared__ ResultArray sharedResults;
-        __shared__ Result sharedResultArray[maxMoves];
         sharedResults.array = sharedResultArray;
         sharedResults.numItems = sharedMoves.numItems;
 
         // declare Nim for this thread
-        Nim newBoard;
-        unsigned int newRows[nim.numRows];
-        deepcopyNim(sharedBoard, newBoard, newRows);
+        unsigned int newRows[numRows];
+        deepcopyNim(&sharedBoard, &newBoard, newRows);
         // apply tid move
-        nimming(newBoard, sharedMoves.array[tid]);
-        int player = 1 - sharedPlayer;
+        nimming(&newBoard, &(sharedMoves.array[tid]));
+        player = 1 - player;
 
         // check if nim is ended
-        if (!isNotEnded(newBoard)) {
+        if (!isNotEnded(&newBoard)) {
             Result res;
             res.ply = sharedMoves.array[tid];
             res.val = player;
@@ -120,7 +112,7 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
 
     if (stopComputation == 0) {
         // start to calculate the minmax, store the result in sharedResults
-        standard_minmax(newBoard, player, sharedResults);
+        standard_minmax(&newBoard, player, tid, &sharedResults);
 
         if (tid != 0)
             return;
@@ -132,8 +124,8 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
     if (stopComputation != 1) {
         // calculate the best move from the shared results
         Result sharedResult;
-        maxResultArray(sharedResults, sharedResult);
-        results.array[bid] = sharedResult;
+        maxResultArray(&sharedResults, &sharedResult);
+        results->array[bid] = sharedResult;
 
         if (bid != 0)
             return;
@@ -143,7 +135,7 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
 
     // calculate the best move from the global results
     Result lastResult;
-    minResultArray(results, lastResult);
+    minResultArray(results, &lastResult);
     ply->row = lastResult.ply.row;
     ply->numSticks = lastResult.ply.numSticks;
 }
@@ -178,9 +170,10 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, Nimply* ply) {
 // fai partire loop per ogni thread
 
 // sharedResults is the output
-__device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultArray sharedResults) {
-    unsigned int maxStackSize = 10000; /* TODO */
-    unsigned int maxMoves = nim->numRows * nim->numRows;
+__device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultArray* sharedResults) {
+    const unsigned int maxStackSize = 1000; /* TODO */
+    const unsigned int numRows = 5;
+    const unsigned int maxMoves = 25; 
 
     // init the stack
     Stack stack;
@@ -190,28 +183,27 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultAr
     
     // push the very first empty entry
     StackEntry entry;
-    createStackEntry(entry, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL);
-    stackPush(stack, maxStackSize, entry);
+    createStackEntry(&entry, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL);
+    stackPush(&stack, maxStackSize, &entry);
 
     // push the first meaningful entry
     Nim newBoard;
-    unsigned int newRows[nim.numRows];
-    deepcopyNim(nim, newBoard, newRows);
+    unsigned int newRows[numRows];
+    deepcopyNim(nim, &newBoard, newRows);
     ResultArray evaluations;
     Result evaluationsArray[maxMoves];
     evaluations.array = evaluationsArray;
     evaluations.numItems = 0;
-    createStackEntry(entry, newBoard, -1, 1, 1, 0, -1, stack.stackSize-1, evaluations, NULL);
-    stackPush(stack, maxStackSize, entry);
+    createStackEntry(&entry, &newBoard, -1, 1, 1, 0, -1, stack.stackSize-1, &evaluations, NULL);
+    stackPush(&stack, maxStackSize, &entry);
 
     // while there are moves to evaluate
     while (stack.stackSize > 1) {
-        stackPop(stack, entry);
+        stackPop(&stack, &entry);
 
         // stop if the game ended
         if (!isNotEnded(entry.board)) {
             Result res;
-            res.ply = NULL;
             res.val = entry.player;
             stack.array[entry.stackIndex].result = &res;
             continue;
@@ -220,15 +212,15 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultAr
         MovesArray moves;
         Nimply plys[maxMoves];
         moves.array = plys;
-        possibleMoves(entry.board, moves);
+        possibleMoves(entry.board, &moves);
         // use the calculated result if it's not the first move
         if (entry.plyIndex != -1) {
             Result result;
             result.ply = moves.array[entry.plyIndex];
             // exploit the previous result calculation
-            int val = entry.result.val;
+            int val = entry.result->val;
             result.val = val;
-            resultArrayPush(entry.evaluations, maxMoves, result);
+            resultArrayPush(entry.evaluations, maxMoves, &result);
             // update alpha or beta
             if (entry.player == 1) {
                 if (entry.beta > val) entry.beta = val;
@@ -239,31 +231,31 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultAr
             if (entry.plyIndex == moves.numItems - 1 || entry.beta <= entry.alpha) {
                 Result r;
                 if (entry.player == 1) {
-                    minResultArray(entry.evaluations, r);
+                    minResultArray(entry.evaluations, &r);
                 } else {
-                    maxResultArray(entry.evaluations, r);
+                    maxResultArray(entry.evaluations, &r);
                 }
-                stack.array[entry.stackIndex].result = r;
+                stack.array[entry.stackIndex].result = &r;
                 continue;
             }
         }
         // evaluate the next move
-        unsigned int newRows_[nim.numRows];
-        deepcopyNim(entry.board, newBoard, newRows_);
-        nimming(newBoard, moves.array[entry.plyIndex+1]);
+        unsigned int newRows_[numRows];
+        deepcopyNim(entry.board, &newBoard, newRows_);
+        nimming(&newBoard, &(moves.array[entry.plyIndex+1]));
         // push the previous state
-        StackEntry* newEntry;
-        createStackEntry(newEntry, entry.board, entry.alpha, entry.beta, entry.player, entry.depth, entry.plyIndex + 1, entry.stackIndex, entry.evaluations, entry.result);
-        stackPush(stack, maxStackSize, newEntry);
+        StackEntry newEntry;
+        createStackEntry(&newEntry, entry.board, entry.alpha, entry.beta, entry.player, entry.depth, entry.plyIndex + 1, entry.stackIndex, entry.evaluations, entry.result);
+        stackPush(&stack, maxStackSize, &newEntry);
         // push the current state (after making the move)
         ResultArray evaluations_;
         Result evaluationsArray_[maxMoves];
         evaluations_.array = evaluationsArray_;
         evaluations_.numItems = 0;
-        createStackEntry(newEntry, newBoard, entry.alpha, entry.beta, -(entry.player), entry.depth + 1, -1, stack.stackSize - 1, evaluations_, NULL);
-        stackPush(stack, maxStackSize, newEntry);
+        createStackEntry(&newEntry, &newBoard, entry.alpha, entry.beta, -(entry.player), entry.depth + 1, -1, stack.stackSize - 1, &evaluations_, NULL);
+        stackPush(&stack, maxStackSize, &newEntry);
     }
-    stackPop(stack, entry);
+    stackPop(&stack, &entry);
     // push the result into the shared results
-    sharedResults[tid] = entry.result;
+    sharedResults->array[tid] = *(entry.result);
 }
