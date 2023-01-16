@@ -29,10 +29,10 @@ void createNim(Nim* output, unsigned int* rows, unsigned int numRows) {
 __device__ void deepcopyNim(Nim* nim, Nim* output, unsigned int* outputRows) {
     output->numRows = nim->numRows;
     output->turn = nim->turn;
-    output->rows = outputRows;
     for (int i = 0; i < nim->numRows; i++) {
-        output->rows[i] = nim->rows[i];
+        outputRows[i] = nim->rows[i];
     }
+    output->rows = outputRows;
 }
 
 __host__ __device__ bool isNotEnded(Nim* nim) {
@@ -81,29 +81,4 @@ __host__ __device__ void possibleMoves(Nim* nim, MovesArray* output) {
         }
     }
     output->numItems = index;
-}
-
-void randomStrategy(Nim* nim) {
-    MovesArray* moves;
-    moves = (MovesArray*)malloc(sizeof(MovesArray));
-    if (!moves) {
-        fprintf(stderr, "malloc failure\n");
-        exit(1);
-    }
-
-    unsigned int maxMoves = nim->numRows * nim->numRows;
-    Nimply array[maxMoves];
-    moves->array = array;
-    possibleMoves(nim, moves);
-
-    if (moves->numItems < 1) {
-        fprintf(stderr, "There are no moves available!\n");
-        exit(1);
-    }
-    
-    srand(time(NULL));
-    int r = rand() % moves->numItems;
-    nimming(nim, &(moves->array[r]));
-
-    free(moves);
 }

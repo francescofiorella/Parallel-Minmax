@@ -40,7 +40,9 @@ int main_GPU(void) {
     nim = (Nim*)malloc(sizeof(Nim));
     unsigned int rows[NUM_ROWS];
     createNim(nim, rows, NUM_ROWS);
+    printf("Initial board:\n");
     printRows(nim);
+    printf("/n");
 
     results = (ResultArray*)malloc(sizeof(ResultArray));
     results->numItems = 0;
@@ -53,6 +55,10 @@ int main_GPU(void) {
     // Execute the minmax on the GPU device iteratively, until the game ends
     while(isNotEnded(nim) && a == 0) {
         a++;
+
+        // calculate the first level of the tree
+        possibleMoves(nim, moves);
+        results->numItems = moves->numItems;
 
         // Allocate the memory on the GPU
         cudaMalloc( (void**)&dev_nim, sizeof(Nim) );
@@ -80,23 +86,33 @@ int main_GPU(void) {
         cudaMemcpy( move, dev_move, sizeof(Nimply), cudaMemcpyDeviceToHost );
 
         // Free the memory allocated on the GPU
-        cudaFree( dev_rows );
         cudaFree( dev_nim );
+        cudaFree( dev_rows );
+        cudaFree( dev_results );
+        cudaFree( dev_resultArray );
+        cudaFree( dev_moves );
+        cudaFree( dev_plys );
         cudaFree( dev_move );
 
         nimming(nim, move);
 
         // Free the memory we allocated on the CPU
         free(move);
+        free(results->array);
+        free(results);
+        free(moves->array);
+        free(moves);
 
-        printf("GPU Minmax: ");
+        printf("GPU Minmax:\n");
         printRows(nim);
+        printf("/n");
 
         // The CPU perform a random move
         if (isNotEnded(nim)) {
             randomStrategy(nim);
-            printf("Random: ");
+            printf("Random:\n");
             printRows(nim);
+            printf("/n");
         }
     }
     

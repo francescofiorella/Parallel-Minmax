@@ -16,22 +16,22 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, ResultArray* results, R
     unsigned int bid = blockIdx.x;
     unsigned int tid = threadIdx.x;
 
+    unsigned int stopComputation = 0;
     // stopComputation values:
     // 0 - Keep calculating
     // 1 - Calculate only the global result
     // 2 - Calculate the shared and the global result
-    unsigned int stopComputation = 0;
     
-    if (bid == 0 && tid == 0) {
-        // initialize the global output
-        // the max number of results is equal to the available moves => the max num of moves is rows^2
+    // if (bid == 0 && tid == 0) {
+    //     // initialize the global output
+    //     // the max number of results is equal to the available moves => the max num of moves is rows^2
         
-        // calculate the first moves
-        possibleMoves(nim, moves);
-        results->numItems = moves->numItems;
-    }
+    //     // calculate the first moves
+    //     possibleMoves(nim, moves);
+    //     results->numItems = moves->numItems;
+    // }
     
-    __syncthreads();
+    // __syncthreads();
     
     if (bid >= moves->numItems)
         return;
@@ -62,7 +62,7 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, ResultArray* results, R
             results->array[bid] = res;
 
             // jump to min/max ending evaluation if bid == 0 and tid == 0
-            if (bid == 0 && tid == 0)
+            if (bid == 0)
                 stopComputation = 1;
         }
 
@@ -112,7 +112,11 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, ResultArray* results, R
 
     if (stopComputation == 0) {
         // start to calculate the minmax, store the result in sharedResults
-        standard_minmax(&newBoard, player, tid, &sharedResults);
+        if (bid == 0 && tid == 0) {
+            standard_minmax(&newBoard, player, tid, sharedResults.array);
+            printNimply(&(sharedResults.array[0].ply));
+        }
+        // standard_minmax(&newBoard, player, tid, sharedResults.array);
 
         if (tid != 0)
             return;
@@ -170,7 +174,7 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, ResultArray* results, R
 // fai partire loop per ogni thread
 
 // sharedResults is the output
-__device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultArray* sharedResults) {
+__device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* sharedResults) {
     const unsigned int maxStackSize = 1000; /* TODO */
     const unsigned int numRows = 5;
     const unsigned int maxMoves = 25; 
@@ -257,5 +261,30 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, ResultAr
     }
     stackPop(&stack, &entry);
     // push the result into the shared results
-    sharedResults->array[tid] = *(entry.result);
+    sharedResults[tid] = *(entry.result);
+}
+
+void randomStrategy(Nim* nim) {
+    MovesArray* moves;
+    moves = (MovesArray*)malloc(sizeof(MovesArray));
+    if (!moves) {
+        fprintf(stderr, "malloc failure\n");
+        exit(1);
+    }
+
+    unsigned int maxMoves = nim->numRows * nim->numRows;
+    Nimply array[maxMoves];
+    moves->array = array;
+    possibleMoves(nim, moves);
+
+    if (moves->numItems < 1) {
+        fprintf(stderr, "There are no moves available!\n");
+        exit(1);
+    }
+    
+    srand(time(NULL));
+    int r = rand() % moves->numItems;
+    nimming(nim, &(moves->array[r]));
+
+    free(moves);
 }

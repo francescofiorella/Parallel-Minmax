@@ -27,4 +27,3 @@ __host__ __device__ bool isNotEnded(Nim* nim);
 __host__ __device__ void printRows(Nim* nim);
 __host__ __device__ void nimming(Nim* nim, Nimply* nimply);
 __host__ __device__ void possibleMoves(Nim* nim, MovesArray* output);
-void randomStrategy(Nim* nim);
