@@ -3,21 +3,11 @@
 #include <stdlib.h>
 #include <cmath>
 #include <cuda_runtime.h>
-// #include "./nimlib/nimlib.h"
-#include "./nimlib_GPU/nimlib.cuh"
-
-int main_CPU(void);
-int main_GPU(void);
+#include "./nimlib/GPU/nimlib.cuh"
 
 #define NUM_ROWS 5
 
 int main(void) {
-    return main_GPU();
-}
-
-int main_GPU(void) {
-    // remember to include ONLY the GPU library [nimlib_GPU/nimlib.cuh]
-
     // Setup block size and max block count
     dim3 grid = dim3(NUM_ROWS*NUM_ROWS);
     dim3 thread = dim3(NUM_ROWS*NUM_ROWS);
@@ -119,29 +109,3 @@ int main_GPU(void) {
     destroyNim(nim);
     return 0;
 }
-
-/* int main_CPU(void) {
-    // remember to include ONLY the CPU library [nimlib/nimlib.h]
-
-    Nim* nim = createNim(NUM_ROWS);
-    printRows(nim);
-
-    
-    Nimply* move;
-    while(isNotEnded(nim)) {
-        move = minmax(nim);
-        nimming(nim, move);
-        destroyNimply(move);
-        printf("Minmax: ");
-        printRows(nim);
-
-        if (isNotEnded(nim)) {
-            randomStrategy(nim);
-            printf("Random: ");
-            printRows(nim);
-        }
-    }
-    
-    destroyNim(nim);
-    return 0;
-} */
