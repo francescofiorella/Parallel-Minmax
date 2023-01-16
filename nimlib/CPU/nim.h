@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct {
     unsigned int turn, numRows;
     // if turn == 0 then player 1 should move
