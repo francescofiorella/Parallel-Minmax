@@ -20,10 +20,10 @@ void createNim(Nim* output, unsigned int* rows, unsigned int numRows) {
     // unsigned int rows[numRows]; // check if it is ok or it needs to be passed as argument
     output->numRows = numRows;
     output->turn = 0;
-    output->rows = rows;
     for (int i = 0; i < numRows; i++) {
-        output->rows[i] = i * 2 + 1;
+        rows[i] = i * 2 + 1;
     }
+    output->rows = rows;
 }
 
 __device__ void deepcopyNim(Nim* nim, Nim* output, unsigned int* outputRows) {

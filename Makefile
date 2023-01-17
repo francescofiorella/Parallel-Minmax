@@ -5,10 +5,10 @@ gpu: gpu_out
 	./nim.out
 
 gpu_out: gpu_make
-	$(GPU_CC) main.o nim.o utils.o agents.o -o nim.out
+	$(GPU_CC) main.o nim.o utils.o agents.o -gencode arch=compute_53,code=sm_53 -o nim.out
 
 gpu_make: main.cu ./nimlib/GPU/nim.cu ./nimlib/GPU/utils.cu ./nimlib/GPU/agents.cu
-	$(GPU_CC) main.cu ./nimlib/GPU/nim.cu ./nimlib/GPU/utils.cu ./nimlib/GPU/agents.cu -dc
+	$(GPU_CC) main.cu ./nimlib/GPU/nim.cu ./nimlib/GPU/utils.cu ./nimlib/GPU/agents.cu -gencode arch=compute_53,code=sm_53 -dc
 
 .PHONY: cpu clear
 

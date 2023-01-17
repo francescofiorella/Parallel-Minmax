@@ -175,6 +175,7 @@ __global__ void GPU_minmax(Nim* nim, unsigned int* rows, ResultArray* results, R
 
 // sharedResults is the output
 __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* sharedResults) {
+    printf("IN!");
     const unsigned int maxStackSize = 1000; /* TODO */
     const unsigned int numRows = 5;
     const unsigned int maxMoves = 25; 
@@ -186,9 +187,7 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* 
     stack.array = entries;
     
     // push the very first empty entry
-    StackEntry entry;
-    createStackEntry(&entry, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL);
-    stackPush(&stack, maxStackSize, &entry);
+    stackPush(&stack, maxStackSize, NULL, 0, 0, 0, 0, 0, 0, NULL, NULL);
 
     // push the first meaningful entry
     Nim newBoard;
@@ -198,9 +197,11 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* 
     Result evaluationsArray[maxMoves];
     evaluations.array = evaluationsArray;
     evaluations.numItems = 0;
-    createStackEntry(&entry, &newBoard, -1, 1, 1, 0, -1, stack.stackSize-1, &evaluations, NULL);
-    stackPush(&stack, maxStackSize, &entry);
+    stackPush(&stack, maxStackSize, &newBoard, -1, 1, 1, 0, -1, stack.stackSize-1, &evaluations, NULL);
+    // printResult(stack.array[stack.stackSize-1].result);
 
+    StackEntry entry;
+    
     // while there are moves to evaluate
     while (stack.stackSize > 1) {
         stackPop(&stack, &entry);
@@ -219,12 +220,9 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* 
         possibleMoves(entry.board, &moves);
         // use the calculated result if it's not the first move
         if (entry.plyIndex != -1) {
-            Result result;
-            result.ply = moves.array[entry.plyIndex];
             // exploit the previous result calculation
             int val = entry.result->val;
-            result.val = val;
-            resultArrayPush(entry.evaluations, maxMoves, &result);
+            resultArrayPush(entry.evaluations, maxMoves, &(moves.array[entry.plyIndex]), val);
             // update alpha or beta
             if (entry.player == 1) {
                 if (entry.beta > val) entry.beta = val;
@@ -248,16 +246,13 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* 
         deepcopyNim(entry.board, &newBoard, newRows_);
         nimming(&newBoard, &(moves.array[entry.plyIndex+1]));
         // push the previous state
-        StackEntry newEntry;
-        createStackEntry(&newEntry, entry.board, entry.alpha, entry.beta, entry.player, entry.depth, entry.plyIndex + 1, entry.stackIndex, entry.evaluations, entry.result);
-        stackPush(&stack, maxStackSize, &newEntry);
+        stackPush(&stack, maxStackSize, entry.board, entry.alpha, entry.beta, entry.player, entry.depth, entry.plyIndex + 1, entry.stackIndex, entry.evaluations, entry.result);
         // push the current state (after making the move)
         ResultArray evaluations_;
         Result evaluationsArray_[maxMoves];
         evaluations_.array = evaluationsArray_;
         evaluations_.numItems = 0;
-        createStackEntry(&newEntry, &newBoard, entry.alpha, entry.beta, -(entry.player), entry.depth + 1, -1, stack.stackSize - 1, &evaluations_, NULL);
-        stackPush(&stack, maxStackSize, &newEntry);
+        stackPush(&stack, maxStackSize, &newBoard, entry.alpha, entry.beta, -(entry.player), entry.depth + 1, -1, stack.stackSize - 1, &evaluations_, NULL);
     }
     stackPop(&stack, &entry);
     // push the result into the shared results
