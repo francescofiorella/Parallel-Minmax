@@ -13,10 +13,10 @@ typedef struct {
 } ResultArray;
 
 typedef struct {
-    Nim* board;
+    Nim board;
     int alpha, beta, player, depth, plyIndex, stackIndex;
-    ResultArray* evaluations;
-    Result* result;
+    ResultArray evaluations;
+    Result result;
 } StackEntry;
 
 typedef struct {
@@ -25,7 +25,7 @@ typedef struct {
 } Stack;
 
 __device__ void printResult(Result* result);
-__device__ void printResultArray(ResultArray* resultArray);
+__device__ void printResultArray(ResultArray* resultArray, unsigned int level);
 __device__ void printEntry(StackEntry* entry);
 
 __device__ void resultArrayPush(ResultArray* resultArray, unsigned int maxSize, Nimply* ply, int val);

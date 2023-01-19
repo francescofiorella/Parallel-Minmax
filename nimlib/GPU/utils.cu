@@ -5,16 +5,52 @@
 
 __device__ void printResult(Result* result) {
     if (!result) {
-        printf("Result: NULL");
+        printf("Result - NULL\n");
         return;
     }
-    printf("Result:\n");
-    printNimply(&(result->ply));
-    printf("Val: %d\n", result->val);
+    printf("Result - Ply: (%d, %d), Val: %d\n", result->ply.row, result->ply.numSticks, result->val);
 }
 
-__device__ void printResultArray(ResultArray* resultArray) {}
-__device__ void printEntry(StackEntry* entry) {}
+__device__ void printResultArray(ResultArray* resultArray, unsigned int level) {
+    for (int i = 0; i < level; i++) {
+        printf("   ");
+    }
+    if (!resultArray || !resultArray->array) {
+        printf("ResultArray - NULL\n");
+        return;
+    }
+    if (resultArray->numItems == 0) {
+        printf("ResultArray - void\n");
+        return;
+    }
+    printf("ResultArray - [\n");
+    for (int i = 0; i < resultArray->numItems; i++) {
+        printf("   ");
+        for (int j = 0; j < level; j++) {
+            printf("   ");
+        }
+        printResult(&(resultArray->array[i]));
+    }
+    for (int i = 0; i < level; i++) {
+        printf("   ");
+    }
+    printf("]\n");
+}
+__device__ void printEntry(StackEntry* entry) {
+    if (!entry) {
+        printf("StackEntry - NULL\n");
+        return;
+    }
+    printf("StackEntry - {\n");
+    printf("   ");
+    printNim(&(entry->board));
+    printf("   Alpha: %d, Beta: %d, Player: %d\n", entry->alpha, entry->beta, entry->player);
+    printf("   Depth: %d, PlyIndex: %d, StackIndex: %d\n", entry->depth, entry->plyIndex, entry->stackIndex);
+    printResultArray(&(entry->evaluations), 1);
+    printf("   ");
+    printResult(&(entry->result));
+    printf("} \n");
+}
 
 __device__ void resultArrayPush(ResultArray* resultArray, unsigned int maxSize, Nimply* ply, int val) {
     if (resultArray->numItems == maxSize) {
@@ -67,15 +103,15 @@ __device__ void stackPush(Stack* stack, unsigned int maxStackSize, Nim* board, i
         return;
     }
     unsigned int index = stack->stackSize;
-    stack->array[index].board = board;
+    if (board) stack->array[index].board = *board;
     stack->array[index].alpha = alpha;
     stack->array[index].beta = beta;
     stack->array[index].player = player;
     stack->array[index].depth = depth;
     stack->array[index].plyIndex = plyIndex;
     stack->array[index].stackIndex = stackIndex;
-    stack->array[index].evaluations = evaluations;
-    stack->array[index].result = result;
+    if (evaluations) stack->array[index].evaluations = *evaluations;
+    if (result) stack->array[index].result = *result;
     stack->stackSize++;
 }
 
@@ -95,6 +131,4 @@ __device__ void stackPop(Stack* stack, StackEntry* entry) {
     entry->stackIndex = stack->array[index].stackIndex;
     entry->evaluations = stack->array[index].evaluations;
     entry->result = stack->array[index].result;
-    printf("Inner evaluations:\n");
-    printf("%d\n", entry->evaluations->numItems);
 }

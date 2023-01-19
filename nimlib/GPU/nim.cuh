@@ -3,10 +3,8 @@
 #include <stdbool.h>
 
 typedef struct {
-    unsigned int turn, numRows;
-    // if turn == 0 then player 1 should move
-    // if turn == 1 then player 2 should move
-    unsigned int* rows;
+    unsigned int numRows;
+    unsigned int rows[5];
     // rows is a vector that contains
     // the number of sticks remaining for each row
 } Nim;
@@ -22,10 +20,12 @@ typedef struct {
 } MovesArray;
 
 __host__ __device__ void printNimply(Nimply* nimply);
-void createNim(Nim* output, unsigned int* rows, unsigned int numRows);
-void destroyNim(Nim* nim);
-__device__ void deepcopyNim(Nim* nim, Nim* output, unsigned int* outputRows);
+__host__ __device__ void printNim(Nim* nim);
+__device__ void printMovesArray(MovesArray* movesArray);
+
+void createNim(Nim* output, unsigned int numRows);
+__device__ void deepcopyNim(Nim* nim, Nim* output);
 __host__ __device__ bool isNotEnded(Nim* nim);
-__host__ __device__ void printRows(Nim* nim);
 __host__ __device__ void nimming(Nim* nim, Nimply* nimply);
 __host__ __device__ void possibleMoves(Nim* nim, MovesArray* output);
+__host__ __device__ bool nim_sum(Nim* nim);
