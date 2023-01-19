@@ -10,7 +10,7 @@
 #define cudaHandleError(ans) {gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line, bool abort=true) {
     if (code != cudaSuccess) {
-        fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+        fprintf(stderr, "GPUerror: %s\nCode: %d\nFile: %s\nLine: %d\n", cudaGetErrorString(code), code, file, line);
         if (abort) exit(code);
     }
 }
@@ -40,8 +40,10 @@ int main(void) {
 
     unsigned int player = 1;
 
+    unsigned int a = 0;
     // Execute the minmax on the GPU device iteratively, until the game ends
-    while(isNotEnded(nim)) {
+    while(isNotEnded(nim) && a == 0) {
+        a++;
         // Allocate the memory on the CPU
         move = (Nimply*)malloc(sizeof(Nimply));
         results = (ResultArray*)malloc(sizeof(ResultArray));
