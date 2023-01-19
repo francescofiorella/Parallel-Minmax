@@ -3,7 +3,7 @@
 #include <time.h>
 #include "utils.h"
 
-void randomStrategy(Nim* nim) {
+void randomStrategy(Nim* nim, bool print) {
     MovesArray* moves = possibleMoves(nim);
 
     if (moves->numItems < 1) {
@@ -13,7 +13,13 @@ void randomStrategy(Nim* nim) {
     
     srand(time(NULL));
     int r = rand() % moves->numItems;
-    nimming(nim, moves->array[r]);
+    Nimply* ply = moves->array[r];
+    nimming(nim, ply);
+    if (print){
+        printf("Random - (%d, %d)\n", ply->row, ply->numSticks);
+        printNim(nim);
+        printf("\n");
+    } 
 
     destroyMovesArray(moves);
 }
@@ -33,7 +39,7 @@ Nimply* minmax(Nim* nim) {
     while (stack->stackSize > 1) {
         entry = stackPop(stack);
         // stop if exceed maximum depth
-        if (entry->depth > 10) {
+        if (entry->depth > 7) {
             destroyResult((stack->array[entry->stackIndex])->result);
             (stack->array[entry->stackIndex])->result = createResult(NULL, -entry->player);
 

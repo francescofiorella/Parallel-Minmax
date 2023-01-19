@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <cmath>
 #include <cuda_runtime.h>
-#include "./nimlib/GPU/nimlib.cuh"
+#include "./nimlib/nimlib.cuh"
 
 #define NUM_ROWS 5
 

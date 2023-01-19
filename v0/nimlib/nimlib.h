@@ -2,6 +2,6 @@
 
 #include "utils.h"
 
-void randomStrategy(Nim* nim);
+void randomStrategy(Nim* nim, bool print);
 
 Nimply* minmax(Nim* nim);

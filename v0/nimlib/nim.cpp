@@ -24,7 +24,6 @@ Nim* createNim(unsigned int numRows) {
     Nim* nim;
     nim = (Nim*)malloc(sizeof(Nim));
     nim->numRows = numRows;
-    nim->turn = 0;
     nim->rows = (unsigned int*)malloc(numRows * sizeof(unsigned int));
     
     if (!nim->rows) {
@@ -52,7 +51,6 @@ Nim* deepcopyNim(Nim* nim) {
     Nim* copy;
     copy = (Nim*)malloc(sizeof(Nim));
     copy->numRows = nim->numRows;
-    copy->turn = nim->turn;
     copy->rows = (unsigned int*)malloc(nim->numRows * sizeof(unsigned int));
     if (!copy->rows) {
         fprintf(stderr, "malloc failure\n");
@@ -72,8 +70,8 @@ bool isNotEnded(Nim* nim) {
     return sum != 0;
 }
 
-void printRows(Nim* nim) {
-    printf("Rows: %d", nim->rows[0]);
+void printNim(Nim* nim) {
+    printf("Nim - %d", nim->rows[0]);
     for (int i = 1; i < nim->numRows; i++) {
         printf(", %d", nim->rows[i]);
     }
@@ -94,7 +92,6 @@ void nimming(Nim* nim, Nimply* nimply) {
         exit(1);
     }
     nim->rows[nimply->row] = nim->rows[nimply->row] - nimply->numSticks;
-    nim->turn = 1 - nim->turn;
 }
 
 MovesArray* possibleMoves(Nim* nim) {
