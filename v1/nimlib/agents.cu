@@ -49,7 +49,7 @@ __global__ void GPU_minmax(Nim* nim, ResultArray* results, Result* resultArray, 
         // select the move from bid
         // calculate the resulting board for the current move
         nimming(&sharedBoard, &(moves->array[bid]));
-        sharedPlayer = 1 - sharedPlayer;
+        sharedPlayer = -sharedPlayer;
 
         // check if the game is ended, if yes update the results
         if (!isNotEnded(&sharedBoard)) {
@@ -87,7 +87,7 @@ __global__ void GPU_minmax(Nim* nim, ResultArray* results, Result* resultArray, 
         deepcopyNim(&sharedBoard, &newBoard);
         // apply tid move
         nimming(&newBoard, &(sharedMoves.array[tid]));
-        player = 1 - player;
+        player = -player;
 
         // check if nim is ended
         if (!isNotEnded(&newBoard)) {

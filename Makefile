@@ -9,7 +9,7 @@ v3_out: v3_make
 v3_make: ./v3/main.cu ./v3/nimlib/nim.cu ./v3/nimlib/utils.cu ./v3/nimlib/agents.cu
 	$(CC) ./v3/main.cu ./v3/nimlib/nim.cu ./v3/nimlib/utils.cu ./v3/nimlib/agents.cu -gencode arch=compute_53,code=sm_53 -dc
 
-.PHONY: clear v0 v1 v2
+.PHONY: v0 v1 v2 logs v1log v2log v3log clear
 
 v2: v2_out
 	./v2.out
@@ -40,3 +40,21 @@ v0_make: ./v0/main.cu ./v0/nimlib/nim.cpp ./v0/nimlib/utils.cpp ./v0/nimlib/agen
 
 clear:
 	rm -f main.o agents.o nim.o utils.o
+
+v1log:
+	sudo nvprof --log-file ./log/v1_summary.log ./v1.out
+	sudo nvprof --print-gpu-trace --log-file ./log/v1_trace.log ./v1.out
+	sudo nvprof --metrics all --log-file ./log/v1_metrics.log ./v1.out
+	sudo nvprof --events all --log-file ./log/v1_events.log ./v1.out
+
+v2log:
+	sudo nvprof --log-file ./log/v2_summary.log ./v2.out
+	sudo nvprof --print-gpu-trace --log-file ./log/v2_trace.log ./v2.out
+	sudo nvprof --metrics all --log-file ./log/v2_metrics.log ./v2.out
+	sudo nvprof --events all --log-file ./log/v2_events.log ./v2.out
+
+v3log:
+	sudo nvprof --log-file ./log/v3_summary.log ./v3.out
+	sudo nvprof --print-gpu-trace --log-file ./log/v3_trace.log ./v3.out
+	sudo nvprof --metrics all --log-file ./log/v3_metrics.log ./v3.out
+	sudo nvprof --events all --log-file ./log/v3_events.log ./v3.out

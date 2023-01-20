@@ -10,12 +10,12 @@
 
 > sudo nvprof --print-gpu-trace --log-file ./log/trace.log ./nim.out
 
-### Event/metric summary mode
+### Metric mode
 
-> sudo nvprof --metrics all --log-file ./log/metric.log ./nim.out
+> sudo nvprof --metrics all --log-file ./log/metrics.log ./nim.out
 
-### Event/metric mode
+### Event mode
 
-> sudo nvprof --log-file event_metric.log ./nim.out
+> sudo nvprof --events all --log-file ./log/events.log ./nim.out
 
 ## CPU Profiling

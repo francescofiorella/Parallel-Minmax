@@ -1,0 +1,18 @@
+==15052== NVPROF is profiling process 15052, command: ./v1.out
+==15052== Warning: Unified Memory Profiling is not supported on the underlying platform. System requirements for unified memory can be found at: http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-requirements
+==15052== Profiling application: ./v1.out
+==15052== Profiling result:
+   Start  Duration            Grid Size      Block Size     Regs*    SSMem*    DSMem*      Size  Throughput  SrcMemType  DstMemType           Device   Context    Stream  Name
+496.51ms  1.0940us                    -               -         -         -         -       24B  20.922MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+496.57ms     260ns                    -               -         -         -         -       16B  58.688MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+496.63ms     260ns                    -               -         -         -         -      300B  1.0746GB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+496.69ms     261ns                    -               -         -         -         -       16B  58.463MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+496.74ms     261ns                    -               -         -         -         -      200B  730.78MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+596.53ms  564.22ms             (25 1 1)        (25 1 1)        59      560B        0B         -           -           -           -  NVIDIA Tegra X1         1         7  GPU_minmax(Nim*, ResultArray*, Result*, MovesArray*, Nimply*, Nimply*) [117]
+1.16282s  2.4480us                    -               -         -         -         -        8B  3.1166MB/s      Device    Pageable  NVIDIA Tegra X1         1         7  [CUDA memcpy DtoH]
+
+Regs: Number of registers used per CUDA thread. This number includes registers used internally by the CUDA driver and/or tools and can be more than what the compiler shows.
+SSMem: Static shared memory allocated per CUDA block.
+DSMem: Dynamic shared memory allocated per CUDA block.
+SrcMemType: The type of source memory accessed by memory operation/copy
+DstMemType: The type of destination memory accessed by memory operation/copy
