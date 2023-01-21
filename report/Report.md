@@ -7,6 +7,10 @@
   - [1.3 Project Aim](#13-project-aim)
 - [2. Related Work](#2-related-work)
 - [3. Proposed Method](#3-proposed-method)
+  - [3.1 The iterative form](#31-the-iterative-form)
+  - [3.2 C++ Implementation](#32-c-implementation)
+  - [3.3 The first CUDA version](#33-the-first-cuda-version)
+  - [3.4 Data structure optimization](#34-data-structure-optimization)
 - [4. Results and Analysis](#4-results-and-analysis)
 - [5. Conclusion](#5-conclusion)
 
@@ -75,6 +79,31 @@ Here, I am reporting a visual representation of the technique, taken from the pa
 The main problem of this implementation is that they executed the sequential part twice, so a proper choice of values "p" and "s" is very important.
 
 # 3. Proposed Method
+
+## 3.1 The iterative form
+
+In its original implementation, the algorithm evaluates the potential moves of both players by creating and evaluating a tree with a depth-first approach. It starts at the current state of the game, and then recursively explores each possible move and its resulting game state.
+
+However, only GPU microarchitechtures after Fermi support recursion and, in general, recursive algorithm are not so efficient on GPUs; so the algorithm was adapted in an iterative form.
+
+The base minmax behaviour does not change, in fact the depth-first approach is preserved, but a new implementation with a stack and a loop was developed.
+
+The stack now hold all the intermediate information that needs to be passed from one level to another, and it comprehends the current board state, alpha, beta, the current player, the depth, the index of the currently explored move, the stackIndex (that refers to the father node entry), the evaluations array, and the intermediate result that contains the evaluation of the current move from the child node.
+
+The iterative version is characterized by an higher complexity if compared to the recursive one, but it allows to apply some optimizations.<br>
+First of all, the intermediate loop on all the available moves for a particular board state is avoided, as now, at each loop step, previously calculated result is assigned and the next move is evaluated by passing the calculation to the next entry, which will refers to another board state.<br>
+Another small optimization is avoiding to calculate the whole array of possible moves at each step, by just calculating the current move.
+
+## 3.2 C++ Implementation
+
+Before parallelizing the minmax algorithm in a CUDA kernel, the Nim library, along with the algorithm itself, was adapted from Python to C++. The Nim class was created, and it contains a pointer to an array in which the board rows are stored: each element is an integer that indicates the number of remaining objects in that specific row. The array, along with all the other data are created by exploiting the malloc function to dynamically allocate memory at runtime.<br>
+This implementation required the creation of several new data classes, along with several dynamic arrays like the evaluation list and the stack.
+
+This lead to some disadvantages like a high complexity and the need to resize the allocated memory if the number of element exceed the current maximum size; however, the algorithm resulted to be slightly faster then the python implementation.
+
+## 3.3 The first CUDA version
+
+## 3.4 Data structure optimization
 
 # 4. Results and Analysis
 
