@@ -99,7 +99,8 @@ Another small optimization is avoiding to calculate the whole array of possible 
 Before parallelizing the minmax algorithm in a CUDA kernel, the Nim library, along with the algorithm itself, was adapted from Python to C++. The Nim class was created, and it contains a pointer to an array in which the board rows are stored: each element is an integer that indicates the number of remaining objects in that specific row. The array, along with all the other data are created by exploiting the malloc function to dynamically allocate memory at runtime.<br>
 This implementation required the creation of several new data classes, along with several dynamic arrays like the evaluation list and the stack.
 
-This lead to some disadvantages like a high complexity and the need to resize the allocated memory if the number of element exceed the current maximum size; however, the algorithm resulted to be slightly faster then the python implementation.
+This lead to some disadvantages like a high complexity and the need to resize the allocated memory if the number of element exceed the current maximum size; however, the algorithm resulted to be slightly faster then the python implementation.<br>
+Moreover, since all the data structures are allocated in the dynamic memory, the free function must be used carefully, both for avoiding memory waste and incorrect memory deallocation that can lead to a segmentation fault. 
 
 ## 3.3 The first CUDA version
 
