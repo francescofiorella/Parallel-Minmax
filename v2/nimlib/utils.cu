@@ -58,7 +58,7 @@ __device__ void printEntry(StackEntry* entry, unsigned int numRows) {
 
 __device__ void resultArrayPush(ResultArray* resultArray, unsigned int maxSize, Nimply* ply, int val) {
     if (resultArray->numItems == maxSize) {
-        printf("the resultArray size is not enougth!\n");
+        printf("the resultArray size is not enough!\n");
         return;
     }
     unsigned int index = resultArray->numItems;
@@ -103,7 +103,7 @@ __device__ void maxResultArray(ResultArray* results, Result* output) {
 
 __device__ void stackPush(Stack* stack, unsigned int maxStackSize, unsigned int board, int alpha, int beta, int player, int depth, int plyIndex, int stackIndex, ResultArray* evaluations, Result* result) {
     if (stack->stackSize == maxStackSize) {
-        printf("the stack size is not enougth!\n");
+        printf("the stack size is not enough!\n");
         return;
     }
     unsigned int index = stack->stackSize;

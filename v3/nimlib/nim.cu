@@ -83,7 +83,7 @@ __host__ __device__ unsigned int nimming(unsigned int nim, unsigned int numRows,
         return nim;
     }
     if (numRows <= row) {
-        printf("Not enougth rows!\n");
+        printf("Not enough rows!\n");
         return nim;
     }
 
@@ -108,7 +108,7 @@ __host__ __device__ unsigned int nimming(unsigned int nim, unsigned int numRows,
 
     unsigned int sticks = (nim >> shift) & mask;
     if (sticks < numSticks) {
-        printf("Not enougth sticks!\n");
+        printf("Not enough sticks!\n");
         return nim;
     }
     unsigned int newMask = 4294967295 ^ (15 << shift);

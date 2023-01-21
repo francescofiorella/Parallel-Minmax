@@ -63,11 +63,11 @@ __host__ __device__ bool isNotEnded(Nim* nim) {
 
 __host__ __device__ void nimming(Nim* nim, Nimply* nimply) {
     if (nim->numRows <= nimply->row) {
-        printf("Not enougth rows!\n");
+        printf("Not enough rows!\n");
         return;
     }
     if (nim->rows[nimply->row] < nimply->numSticks) {
-        printf("Not enougth sticks!\n");
+        printf("Not enough sticks!\n");
         return;
     }
     if (nimply->numSticks < 1) {

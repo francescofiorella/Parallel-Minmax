@@ -2,6 +2,10 @@
 
 #include "nim.cuh"
 
+/*
+The Result struct is now an unsigned char, and has been incorporate into the Nimply representation.
+*/
+
 typedef struct {
     unsigned int board;
     int alpha, beta, player, plyIndex;

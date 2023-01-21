@@ -80,11 +80,11 @@ void printNim(Nim* nim) {
 
 void nimming(Nim* nim, Nimply* nimply) {
     if (nim->numRows <= nimply->row) {
-        fprintf(stderr, "Not enougth rows!\n");
+        fprintf(stderr, "Not enough rows!\n");
         exit(1);
     }
     if (nim->rows[nimply->row] < nimply->numSticks) {
-        fprintf(stderr, "Not enougth sticks!\n");
+        fprintf(stderr, "Not enough sticks!\n");
         exit(1);
     }
     if (nimply->numSticks < 1) {
