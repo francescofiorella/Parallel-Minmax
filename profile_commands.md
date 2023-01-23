@@ -19,3 +19,18 @@
 > sudo nvprof --events all --log-file ./log/events.log ./nim.out
 
 ## CPU Profiling
+
+
+## Utils
+
+To perform long-lasting operations:
+
+> sudo -s
+> 
+> echo N > /sys/kernel/debug/gpu.0/timeouts_enabled
+
+To re-enable the timeout:
+
+> sudo -s
+> 
+> echo Y > /sys/kernel/debug/gpu.0/timeouts_enabled

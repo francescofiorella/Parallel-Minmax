@@ -1,4 +1,5 @@
 CC=nvcc
+CPU_CC=gcc
 
 v3: v3_out
 	./v3.out
@@ -29,14 +30,11 @@ v1_out: v1_make
 v1_make: ./v1/main.cu ./v1/nimlib/nim.cu ./v1/nimlib/utils.cu ./v1/nimlib/agents.cu
 	$(CC) ./v1/main.cu ./v1/nimlib/nim.cu ./v1/nimlib/utils.cu ./v1/nimlib/agents.cu -gencode arch=compute_53,code=sm_53 -dc
 
-v0: v0_out
+v0: v0_make
 	./v0.out
 
-v0_out: v0_make
-	$(CC) main.o nim.o utils.o agents.o -gencode arch=compute_53,code=sm_53 -o v0.out
-
-v0_make: ./v0/main.cu ./v0/nimlib/nim.cpp ./v0/nimlib/utils.cpp ./v0/nimlib/agents.cpp
-	$(CC) ./v0/main.cu ./v0/nimlib/nim.cpp ./v0/nimlib/utils.cpp ./v0/nimlib/agents.cpp -gencode arch=compute_53,code=sm_53 -dc
+v0_make: ./v0/main.c ./v0/nimlib/nim.c ./v0/nimlib/utils.c ./v0/nimlib/agents.c
+	$(CPU_CC) ./v0/main.c ./v0/nimlib/nim.c ./v0/nimlib/utils.c ./v0/nimlib/agents.c -o v0.out
 
 clear:
 	rm -f main.o agents.o nim.o utils.o

@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include <iostream>
 #include <stdlib.h>
-#include <cmath>
 #include "./nimlib/nimlib.h"
 
 #define NUM_ROWS 5
@@ -16,7 +14,9 @@ int main(void) {
     
     Nimply* move;
     unsigned int player = 1;
-    while(isNotEnded(nim)) {
+    unsigned int a = 0;
+    while(isNotEnded(nim) && a == 0) {
+        a++;
         move = minmax(nim);
         nimming(nim, move);
         player = 1 - player;

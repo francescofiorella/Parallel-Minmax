@@ -1,14 +1,11 @@
-==15105== NVPROF is profiling process 15105, command: ./v2.out
-==15105== Warning: Unified Memory Profiling is not supported on the underlying platform. System requirements for unified memory can be found at: http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-requirements
-==15105== Profiling application: ./v2.out
-==15105== Profiling result:
+==17165== NVPROF is profiling process 17165, command: ./v2.out
+==17165== Warning: Unified Memory Profiling is not supported on the underlying platform. System requirements for unified memory can be found at: http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-requirements
+==17165== Profiling application: ./v2.out
+==17165== Profiling result:
    Start  Duration            Grid Size      Block Size     Regs*    SSMem*    DSMem*      Size  Throughput  SrcMemType  DstMemType           Device   Context    Stream  Name
-501.29ms     938ns                    -               -         -         -         -       16B  16.267MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
-501.35ms     260ns                    -               -         -         -         -      300B  1.0746GB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
-501.38ms     261ns                    -               -         -         -         -       16B  58.463MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
-501.42ms     260ns                    -               -         -         -         -      200B  733.60MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
-582.67ms  473.30ms             (25 1 1)        (25 1 1)        59      540B        0B         -           -           -           -  NVIDIA Tegra X1         1         7  GPU_minmax(unsigned int, unsigned int, ResultArray*, Result*, MovesArray*, Nimply*, Nimply*) [115]
-1.05973s  3.4380us                    -               -         -         -         -        8B  2.2191MB/s      Device    Pageable  NVIDIA Tegra X1         1         7  [CUDA memcpy DtoH]
+472.03ms     939ns                    -               -         -         -         -       26B  26.406MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+473.03ms  217.89ms             (25 1 1)        (25 1 1)        34       61B        0B         -           -           -           -  NVIDIA Tegra X1         1         7  GPU_minmax(unsigned int, unsigned int, unsigned char*, unsigned char, unsigned char*) [109]
+690.93ms  2.1360us                    -               -         -         -         -       26B  11.608MB/s      Device    Pageable  NVIDIA Tegra X1         1         7  [CUDA memcpy DtoH]
 
 Regs: Number of registers used per CUDA thread. This number includes registers used internally by the CUDA driver and/or tools and can be more than what the compiler shows.
 SSMem: Static shared memory allocated per CUDA block.

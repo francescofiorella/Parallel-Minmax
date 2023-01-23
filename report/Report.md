@@ -1,6 +1,6 @@
-# Report: parallelized MinMax for Nim
+# Report: parallel MinMax on Nim
 
-- [Report: parallelized MinMax for Nim](#report-parallelized-minmax-for-nim)
+- [Report: parallel MinMax on Nim](#report-parallel-minmax-on-nim)
 - [1. Introduction](#1-introduction)
   - [1.1 Nim](#11-nim)
   - [1.2 Minmax](#12-minmax)
@@ -8,7 +8,7 @@
 - [2. Related Work](#2-related-work)
 - [3. Proposed Method](#3-proposed-method)
   - [3.1 The iterative form](#31-the-iterative-form)
-  - [3.2 C++ Implementation](#32-c-implementation)
+  - [3.2 C Implementation](#32-c-implementation)
   - [3.3 The first CUDA version](#33-the-first-cuda-version)
   - [3.4 Data structure optimization](#34-data-structure-optimization)
 - [4. Results and Analysis](#4-results-and-analysis)
@@ -94,9 +94,9 @@ The iterative version is characterized by an higher complexity if compared to th
 First of all, the intermediate loop on all the available moves for a particular board state is avoided, as now, at each loop step, previously calculated result is assigned and the next move is evaluated by passing the calculation to the next entry, which will refers to another board state.<br>
 Another small optimization is avoiding to calculate the whole array of possible moves at each step, by just calculating the current move.
 
-## 3.2 C++ Implementation
+## 3.2 C Implementation
 
-Before parallelizing the minmax algorithm in a CUDA kernel, the Nim library, along with the algorithm itself, was adapted from Python to C++. The Nim class was created, and it contains a pointer to an array in which the board rows are stored: each element is an integer that indicates the number of remaining objects in that specific row. The array, along with all the other data are created by exploiting the malloc function to dynamically allocate memory at runtime.<br>
+Before parallelizing the minmax algorithm in a CUDA kernel, the Nim library, along with the algorithm itself, was adapted from Python to C. The Nim class was created, and it contains a pointer to an array in which the board rows are stored: each element is an integer that indicates the number of remaining objects in that specific row. The array, along with all the other data are created by exploiting the malloc function to dynamically allocate memory at runtime.<br>
 This implementation required the creation of several new data classes, along with several dynamic arrays like the evaluation list and the stack.
 
 This lead to some disadvantages like a high complexity and the need to resize the allocated memory if the number of element exceed the current maximum size; however, the algorithm resulted to be slightly faster then the python implementation.<br>

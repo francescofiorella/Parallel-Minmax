@@ -1,44 +1,44 @@
-==15079== NVPROF is profiling process 15079, command: ./v1.out
-==15079== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==15079== Profiling application: ./v1.out
-==15079== Profiling result:
-==15079== Event result:
+==17049== NVPROF is profiling process 17049, command: ./v1.out
+==17049== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==17049== Profiling application: ./v1.out
+==17049== Profiling result:
+==17049== Event result:
 Invocations                                Event Name         Min         Max         Avg       Total
 Device "NVIDIA Tegra X1 (0)"
-    Kernel: GPU_minmax(Nim*, ResultArray*, Result*, MovesArray*, Nimply*, Nimply*)
-          1                 tex0_cache_sector_queries    99672887    99672887    99672887    99672887
-          1                 tex1_cache_sector_queries   142007097   142007097   142007097   142007097
-          1                  tex0_cache_sector_misses    78447163    78447163    78447163    78447163
-          1                  tex1_cache_sector_misses   111490886   111490886   111490886   111490886
-          1              l2_subp0_write_sector_misses    20044128    20044128    20044128    20044128
-          1              l2_subp1_write_sector_misses    20743534    20743534    20743534    20743534
-          1               l2_subp0_read_sector_misses    18232080    18232080    18232080    18232080
-          1               l2_subp1_read_sector_misses    18232080    18232080    18232080    18232080
-          1          l2_subp0_read_tex_sector_queries    49720935    49720935    49720935    49720935
-          1          l2_subp1_read_tex_sector_queries    47852385    47852385    47852385    47852385
-          1         l2_subp0_write_tex_sector_queries    35931330    35931330    35931330    35931330
-          1         l2_subp1_write_tex_sector_queries    36651126    36651126    36651126    36651126
-          1             l2_subp0_read_tex_hit_sectors    38511531    38511531    38511531    38511531
-          1             l2_subp1_read_tex_hit_sectors    36077017    36077017    36077017    36077017
-          1            l2_subp0_write_tex_hit_sectors    35944749    35944749    35944749    35944749
-          1            l2_subp1_write_tex_hit_sectors    36627187    36627187    36627187    36627187
-          1        l2_subp0_total_read_sector_queries    48458122    48458122    48458122    48458122
-          1        l2_subp1_total_read_sector_queries    49847356    49847356    49847356    49847356
-          1       l2_subp0_total_write_sector_queries    35959194    35959194    35959194    35959194
-          1       l2_subp1_total_write_sector_queries    36679120    36679120    36679120    36679120
+    Kernel: GPU_minmax(Nim*, MovesArray*, Nimply*, ResultArray*, Result*)
+          1                 tex0_cache_sector_queries    99304645    99304645    99304645    99304645
+          1                 tex1_cache_sector_queries   141639281   141639281   141639281   141639281
+          1                  tex0_cache_sector_misses    98972782    98972782    98972782    98972782
+          1                  tex1_cache_sector_misses    90839450    90839450    90839450    90839450
+          1              l2_subp0_write_sector_misses    21132337    21132337    21132337    21132337
+          1              l2_subp1_write_sector_misses    19973642    19973642    19973642    19973642
+          1               l2_subp0_read_sector_misses    18261530    18261530    18261530    18261530
+          1               l2_subp1_read_sector_misses    18261530    18261530    18261530    18261530
+          1          l2_subp0_read_tex_sector_queries    49162602    49162602    49162602    49162602
+          1          l2_subp1_read_tex_sector_queries    48286288    48286288    48286288    48286288
+          1         l2_subp0_write_tex_sector_queries    36720867    36720867    36720867    36720867
+          1         l2_subp1_write_tex_sector_queries    35842098    35842098    35842098    35842098
+          1             l2_subp0_read_tex_hit_sectors    38005110    38005110    38005110    38005110
+          1             l2_subp1_read_tex_hit_sectors    36143706    36143706    36143706    36143706
+          1            l2_subp0_write_tex_hit_sectors    36612588    36612588    36612588    36612588
+          1            l2_subp1_write_tex_hit_sectors    35954519    35954519    35954519    35954519
+          1        l2_subp0_total_read_sector_queries    49159192    49159192    49159192    49159192
+          1        l2_subp1_total_read_sector_queries    48261585    48261585    48261585    48261585
+          1       l2_subp0_total_write_sector_queries    36640880    36640880    36640880    36640880
+          1       l2_subp1_total_write_sector_queries    35924977    35924977    35924977    35924977
           1       l2_subp0_read_sysmem_sector_queries           0           0           0           0
           1       l2_subp1_read_sysmem_sector_queries           0           0           0           0
           1      l2_subp0_write_sysmem_sector_queries           0           0           0           0
           1      l2_subp1_write_sysmem_sector_queries           0           0           0           0
-          1                         elapsed_cycles_sm   506636831   506636831   506636831   506636831
+          1                         elapsed_cycles_sm   503665860   503665860   503665860   503665860
           1                             gld_inst_8bit           0           0           0           0
           1                            gld_inst_16bit           0           0           0           0
-          1                            gld_inst_32bit     6976408     6976408     6976408     6976408
-          1                            gld_inst_64bit          51          51          51          51
+          1                            gld_inst_32bit     6977005     6977005     6977005     6977005
+          1                            gld_inst_64bit          50          50          50          50
           1                           gld_inst_128bit           0           0           0           0
           1                             gst_inst_8bit           0           0           0           0
           1                            gst_inst_16bit           0           0           0           0
-          1                            gst_inst_32bit     1395052     1395052     1395052     1395052
+          1                            gst_inst_32bit     1395675     1395675     1395675     1395675
           1                            gst_inst_64bit        1250        1250        1250        1250
           1                           gst_inst_128bit           0           0           0           0
           1                           prof_trigger_00           0           0           0           0
@@ -50,14 +50,14 @@ Device "NVIDIA Tegra X1 (0)"
           1                           prof_trigger_06           0           0           0           0
           1                           prof_trigger_07           0           0           0           0
           1                            warps_launched          25          25          25          25
-          1                              inst_issued0  1663103966  1663103966  1663103966  1663103966
-          1                              inst_issued1   204208781   204208781   204208781   204208781
-          1                              inst_issued2    19967925    19967925    19967925    19967925
-          1                             inst_executed   244144489   244144489   244144489   244144489
-          1                      thread_inst_executed  2030783962  2030783962  2030783962  2030783962
-          1   not_predicated_off_thread_inst_executed  1934880688  1934880688  1934880688  1934880688
+          1                              inst_issued0  1662689524  1662689524  1662689524  1662689524
+          1                              inst_issued1   204208758   204208758   204208758   204208758
+          1                              inst_issued2    19967888    19967888    19967888    19967888
+          1                             inst_executed   244144370   244144370   244144370   244144370
+          1                      thread_inst_executed  2030785646  2030785646  2030785646  2030785646
+          1   not_predicated_off_thread_inst_executed  1934882398  1934882398  1934882398  1934882398
           1                               local_store     1219914     1219914     1219914     1219914
-          1                                local_load     4635032     4635032     4635032     4635032
+          1                                local_load     4635030     4635030     4635030     4635030
           1                               shared_load         125         125         125         125
           1                              shared_store         125         125         125         125
           1                           shared_atom_cas           0           0           0           0
@@ -65,13 +65,13 @@ Device "NVIDIA Tegra X1 (0)"
           1                           global_atom_cas           0           0           0           0
           1                                atom_count           0           0           0           0
           1                                gred_count           0           0           0           0
-          1                               global_load          75          75          75          75
-          1                              global_store          52          52          52          52
+          1                               global_load         100         100         100         100
+          1                              global_store          75          75          75          75
           1                          divergent_branch      501273      501273      501273      501273
-          1                                    branch    19010807    19010807    19010807    19010807
-          1                             active_cycles   505695115   505695115   505695115   505695115
-          1                              active_warps  9436151560  9436151560  9436151560  9436151560
-          1                               active_ctas  9407731811  9407731811  9407731811  9407731811
+          1                                    branch    19010790    19010790    19010790    19010790
+          1                             active_cycles   503575036   503575036   503575036   503575036
+          1                              active_warps  9410531000  9410531000  9410531000  9410531000
+          1                               active_ctas  9471645328  9471645328  9471645328  9471645328
           1                           sm_cta_launched          25          25          25          25
           1                   shared_ld_bank_conflict          48          48          48          48
           1                   shared_st_bank_conflict           0           0           0           0

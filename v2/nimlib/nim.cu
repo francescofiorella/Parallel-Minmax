@@ -3,12 +3,12 @@
 #include <cuda_runtime.h>
 #include "nim.cuh"
 
-__host__ __device__ void printNimply(Nimply* nimply) {
+__host__ __device__ void printNimply(unsigned char nimply) {
     if (!nimply) {
         printf("Nimply - NULL");
         return;
     }
-    printf("Nimply - Row: %d, Num: %d\n", nimply->row, nimply->numSticks);
+    printf("Nimply - Row: %d, Num: %d\n", (nimply >> 4) & 7, nimply & 15);
 }
 
 __host__ __device__ void printNim(unsigned int nim, unsigned int numRows) {
@@ -39,19 +39,20 @@ __host__ __device__ void printNim(unsigned int nim, unsigned int numRows) {
     printf("\n");
 }
 
-__host__ __device__ void printMovesArray(MovesArray* movesArray) {
-    if (!movesArray || !movesArray->array) {
-        printf("MovesArray - NULL\n");
-        return;
-    }
-    if (movesArray->numItems == 0) {
-        printf("MovesArray - void");
+__host__ __device__ void printMovesArray(unsigned char movesArray[]) {
+    unsigned char move = movesArray[0];
+    if (move == 16) {
+        printf("MovesArray - void\n");
         return;
     }
     printf("MovesArray - [\n");
-    for (int i = 0; i < movesArray->numItems; i++) {
-        printf("   Row: %d, Num: %d\n", movesArray->array[i].row, movesArray->array[i].numSticks);
-    }
+    unsigned int index = 0;
+    do {
+        printf("   ");
+        printNimply(move);
+        index++;
+        move = movesArray[index];
+    } while (move != 16);
     printf("]\n");
 }
 
@@ -74,9 +75,9 @@ __host__ __device__ bool isNotEnded(unsigned int nim) {
     return nim != 0;
 }
 
-__host__ __device__ unsigned int nimming(unsigned int nim, unsigned int numRows, Nimply* nimply) {
-    unsigned int row = nimply->row;
-    unsigned int numSticks = nimply->numSticks;
+__host__ __device__ unsigned int nimming(unsigned int nim, unsigned int numRows, unsigned char nimply) {
+    unsigned int row = (nimply >> 4) & 7;
+    unsigned int numSticks = nimply & 15;
     if (numSticks < 1) {
         printf("Not a valid move!\n");
         return nim;
@@ -115,14 +116,14 @@ __host__ __device__ unsigned int nimming(unsigned int nim, unsigned int numRows,
     return (nim & newMask) | sticks;
 }
 
-__host__ __device__ void possibleMoves(unsigned int nim, unsigned int numRows, MovesArray* output) {
+__host__ __device__ unsigned char possibleMoves(unsigned int nim, unsigned int numRows, unsigned char* output, int index) {
     if (numRows > 8) {
         printf("Not a valid number of rows!\n");
-        return;
+        return 0;
     }
     unsigned int shift = 0;
-    unsigned int index = 0;
-    for (unsigned int r = 0; r < numRows; r++) {
+    int i = 0;
+    for (unsigned char r = 0; r < numRows; r++) {
         unsigned int mask;
         switch(r) {
             case 0: // 1
@@ -142,13 +143,22 @@ __host__ __device__ void possibleMoves(unsigned int nim, unsigned int numRows, M
         }
         unsigned int c = (nim >> shift) & mask;
         shift += 4;
-        for (int o = 1; o <= c; o++) {
-            output->array[index].row = r;
-            output->array[index].numSticks = o;
-            index++;
+        for (unsigned char o = 1; o <= c; o++) {
+            if (index == -1) {
+                output[i] = (r << 4) + o;
+            } else if (index == i) {
+                return (r << 4) + o;
+            }
+            i++;
         }
     }
-    output->numItems = index;
+    if (index >= i) {
+        if (index > i) printf("Index: %d - I: %d\n", index, i);
+        return 16;
+    }
+
+    output[i] = 16; // 1 << 4 - row 1, num 0
+    return i;
 }
 
 __host__ __device__ unsigned int nim_sum(unsigned int nim, unsigned int numRows) {

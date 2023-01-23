@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include <stdlib.h>
-#include <cstdio>
 #include <time.h>
 #include "utils.h"
 
@@ -26,7 +26,7 @@ void randomStrategy(Nim* nim, bool print) {
 
 Nimply* minmax(Nim* nim) {
     Nimply* ply;
-    unsigned int maxStackSize = 100; /*TODO*/
+    unsigned int maxStackSize = 10;
     // the max number of evaluations is equal to the available moves => the max num of moves is rows^2
     unsigned int maxEvaluationsSize = nim->numRows * nim->numRows;
     Stack* stack = createStack(maxStackSize);

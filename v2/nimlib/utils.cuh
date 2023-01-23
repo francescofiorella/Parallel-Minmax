@@ -2,21 +2,15 @@
 
 #include "nim.cuh"
 
-typedef struct {
-    Nimply ply;
-    int val;
-} Result;
-
-typedef struct {
-    unsigned int numItems;
-    Result* array;
-} ResultArray;
+/*
+The Result struct is now an unsigned char, and has been incorporate into the Nimply representation.
+*/
 
 typedef struct {
     unsigned int board;
-    int alpha, beta, player, depth, plyIndex, stackIndex;
-    ResultArray evaluations;
-    Result result;
+    int alpha, beta, player, plyIndex;
+    unsigned char depth, stackIndex, result;
+    unsigned char* evaluations;
 } StackEntry;
 
 typedef struct {
@@ -24,13 +18,12 @@ typedef struct {
     StackEntry* array;
 } Stack;
 
-__device__ void printResult(Result* result);
-__device__ void printResultArray(ResultArray* resultArray, unsigned int level);
+__device__ void printResult(unsigned char result);
+__device__ void printResultArray(unsigned char* resultArray, unsigned int level);
 __device__ void printEntry(StackEntry* entry, unsigned int numRows);
 
-__device__ void resultArrayPush(ResultArray* resultArray, unsigned int maxSize, Nimply* ply, int val);
-__device__ void minResultArray(ResultArray* results, Result* output);
-__device__ void maxResultArray(ResultArray* resultArray, Result* output);
+__host__ __device__ unsigned char minResultArray(unsigned char results[]);
+__host__ __device__ unsigned char maxResultArray(unsigned char results[]);
 
-__device__ void stackPush(Stack* stack, unsigned int maxStackSize, unsigned int board, int alpha, int beta, int player, int depth, int plyIndex, int stackIndex, ResultArray* evaluations, Result* result);
+__device__ void stackPush(Stack* stack, unsigned int maxStackSize, unsigned int board, int alpha, int beta, int player, int depth, int plyIndex, int stackIndex, unsigned char evaluations[], unsigned char result);
 __device__ void stackPop(Stack* stack, StackEntry* entry);

@@ -3,9 +3,10 @@
 #include <cuda_runtime.h>
 #include "nimlib.cuh"
 
-__global__ void GPU_minmax(Nim* nim, ResultArray* results, Result* resultArray, MovesArray* moves, Nimply* plys, Nimply* ply) {
+__global__ void GPU_minmax(Nim* nim, MovesArray* moves, Nimply* plys, ResultArray* results, Result* resultArray) {
     // Associate arrays to classes
     results->array = resultArray;
+    results->numItems = moves->numItems;
     moves->array = plys;
 
     const unsigned int maxMoves = 25; 
@@ -126,14 +127,6 @@ __global__ void GPU_minmax(Nim* nim, ResultArray* results, Result* resultArray, 
         if (bid != 0)
             return;
     }
-
-    __syncthreads();
-
-    // calculate the best move from the global results
-    Result lastResult;
-    minResultArray(results, &lastResult);
-    ply->row = lastResult.ply.row;
-    ply->numSticks = lastResult.ply.numSticks;
 }
 
 // let's remove alpha beta pruning and max depth constrains
@@ -167,9 +160,20 @@ __global__ void GPU_minmax(Nim* nim, ResultArray* results, Result* resultArray, 
 
 // sharedResults is the output
 __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* sharedResults) {
-    // printf("IN!\n");
-    const unsigned int maxStackSize = 1000; /* TODO */
-    const unsigned int maxMoves = 25; 
+    const unsigned int maxMoves = 25;
+    const unsigned int maxDepth = 5;
+    const unsigned int maxStackSize = 8;
+    /*
+    | Max Depth | Max Stack Size |
+    | --------- | -------------- |
+    | 1         | 4              |
+    | 2         | 5              |
+    | 3         | 6              |
+    | 4         | 7              |
+    | 5         | 8              |
+    | 6         | 9              |
+    | 7         | 10             |
+    */
 
     // init the stack
     Stack stack;
@@ -198,7 +202,7 @@ __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* 
         stackPop(&stack, &entry);
 
         // stop if the max depth was reached
-        if (entry.depth > 5) {
+        if (entry.depth > maxDepth) {
             Result res;
             // res.val = nim_sum(&(entry.board)) ? entry.player : -entry.player;
             res.val = -entry.player;

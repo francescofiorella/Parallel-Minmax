@@ -23,15 +23,13 @@ int main(void) {
     // Creation of the memory pointers
     Nim nim; // nim on the host CPU machine
     Nim* dev_nim; // nim for the GPU device
-    Nimply* move; // the move on the host CPU machine
-    Nimply* dev_move; // the move for the GPU device
 
+    MovesArray* moves; // the possible moves on the host CPU machine
+    MovesArray* dev_moves; // the possible moves for the GPU device
+    Nimply* dev_plys;
     ResultArray* results;
     ResultArray* dev_results;
     Result* dev_resultArray;
-    MovesArray* moves;
-    MovesArray* dev_moves;
-    Nimply* dev_plys;
 
     // Initialize nim
     createNim(&nim, NUM_ROWS);
@@ -47,13 +45,12 @@ int main(void) {
     while(isNotEnded(&nim) && a == 0) {
         a++;
         // Allocate the memory on the CPU
-        move = (Nimply*)malloc(sizeof(Nimply));
-        results = (ResultArray*)malloc(sizeof(ResultArray));
-        results->array = (Result*)malloc(NUM_ROWS*NUM_ROWS * sizeof(Result));
         moves = (MovesArray*)malloc(sizeof(MovesArray));
         moves->numItems = 0;
         moves->array = (Nimply*)malloc(NUM_ROWS*NUM_ROWS * sizeof(Nimply));
-        if (!move || !results || !results->array || !moves || !moves->array) {
+        results = (ResultArray*)malloc(sizeof(ResultArray));
+        results->array = (Result*)malloc(NUM_ROWS*NUM_ROWS * sizeof(Result));
+        if (!results || !results->array || !moves || !moves->array) {
             fprintf(stderr, "malloc failure\n");
             exit(1);
         }
@@ -64,52 +61,52 @@ int main(void) {
 
         // Allocate the memory on the GPU
         cudaHandleError( cudaMalloc( (void**)&dev_nim, sizeof(Nim) ) );
-        cudaHandleError( cudaMalloc( (void**)&dev_move, sizeof(Nimply) ) );
-
-        cudaHandleError( cudaMalloc( (void**)&dev_results, sizeof(ResultArray) ) );
-        cudaHandleError( cudaMalloc( (void**)&dev_resultArray, NUM_ROWS*NUM_ROWS * sizeof(Result) ) );
         cudaHandleError( cudaMalloc( (void**)&dev_moves, sizeof(MovesArray) ) );
         cudaHandleError( cudaMalloc( (void**)&dev_plys, NUM_ROWS*NUM_ROWS * sizeof(Nimply) ) );
+        cudaHandleError( cudaMalloc( (void**)&dev_results, sizeof(ResultArray) ) );
+        cudaHandleError( cudaMalloc( (void**)&dev_resultArray, NUM_ROWS*NUM_ROWS * sizeof(Result) ) );
 
         // Copy nim to the GPU
         cudaHandleError( cudaMemcpy( dev_nim, &nim, sizeof(Nim), cudaMemcpyHostToDevice ) );
 
-        cudaHandleError( cudaMemcpy( dev_results, results, sizeof(ResultArray), cudaMemcpyHostToDevice ) );
-        cudaHandleError( cudaMemcpy( dev_resultArray, results->array, NUM_ROWS*NUM_ROWS * sizeof(Result), cudaMemcpyHostToDevice ) );
         cudaHandleError( cudaMemcpy( dev_moves, moves, sizeof(MovesArray), cudaMemcpyHostToDevice ) );
         cudaHandleError( cudaMemcpy( dev_plys, moves->array, NUM_ROWS*NUM_ROWS * sizeof(Nimply), cudaMemcpyHostToDevice ) );
 
         // Execute the minmax on the GPU device
-        GPU_minmax<<<grid, thread>>>(dev_nim, dev_results, dev_resultArray, dev_moves, dev_plys, dev_move);
+        GPU_minmax<<<grid, thread>>>(dev_nim, dev_moves, dev_plys, dev_results, dev_resultArray);
         
         cudaHandleError( cudaPeekAtLastError() );
 
         // Copy the move back from the GPU to the CPU
-        cudaHandleError( cudaMemcpy( move, dev_move, sizeof(Nimply), cudaMemcpyDeviceToHost ) );
+        cudaHandleError( cudaMemcpy( results->array, dev_resultArray, NUM_ROWS*NUM_ROWS * sizeof(Result), cudaMemcpyDeviceToHost ) );
 
         // Free the memory allocated on the GPU
         cudaFree( dev_nim );
-        cudaFree( dev_results );
-        cudaFree( dev_resultArray );
         cudaFree( dev_moves );
         cudaFree( dev_plys );
-        cudaFree( dev_move );
+        cudaFree( dev_results );
+        cudaFree( dev_resultArray );
+        
+        // calculate the best move
+        Nimply move;
+        Result lastResult;
+        minResultArray(results, &lastResult);
+        move.row = lastResult.ply.row;
+        move.numSticks = lastResult.ply.numSticks;
 
         // Perform the move
-        nimming(&nim, move);
+        nimming(&nim, &move);
         player = 1 - player;
 
-        printf("GPU Minmax - (%d, %d)\n", move->row, move->numSticks);
+        printf("GPU Minmax - (%d, %d)\n", move.row, move.numSticks);
         printNim(&nim);
         printf("\n");
 
         // Free the memory we allocated on the CPU
-        free(move);
-        free(results->array);
-        free(results);
         free(moves->array);
         free(moves);
-
+        free(results->array);
+        free(results);
 
         // The CPU perform a random move
         if (isNotEnded(&nim)){

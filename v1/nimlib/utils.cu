@@ -63,7 +63,7 @@ __device__ void resultArrayPush(ResultArray* resultArray, unsigned int maxSize, 
     resultArray->numItems++;
 }
 
-__device__ void minResultArray(ResultArray* results, Result* output) {
+__host__ __device__ void minResultArray(ResultArray* results, Result* output) {
     if (results->numItems < 1) {
         printf("empty resultArray!\n");
         return;
@@ -80,7 +80,7 @@ __device__ void minResultArray(ResultArray* results, Result* output) {
     output->val = min_val;
 }
 
-__device__ void maxResultArray(ResultArray* results, Result* output) {
+__host__ __device__ void maxResultArray(ResultArray* results, Result* output) {
     if (results->numItems < 1) {
         printf("empty ResultArray!\n");
         return;
