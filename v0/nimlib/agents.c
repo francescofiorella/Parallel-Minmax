@@ -3,27 +3,6 @@
 #include <time.h>
 #include "utils.h"
 
-void randomStrategy(Nim* nim, bool print) {
-    MovesArray* moves = possibleMoves(nim);
-
-    if (moves->numItems < 1) {
-        fprintf(stderr, "There are no moves available!\n");
-        exit(1);
-    }
-    
-    srand(time(NULL));
-    int r = rand() % moves->numItems;
-    Nimply* ply = moves->array[r];
-    nimming(nim, ply);
-    if (print){
-        printf("Random - (%d, %d)\n", ply->row, ply->numSticks);
-        printNim(nim);
-        printf("\n");
-    } 
-
-    destroyMovesArray(moves);
-}
-
 Nimply* minmax(Nim* nim) {
     Nimply* ply;
     unsigned int maxStackSize = 10;
@@ -113,4 +92,25 @@ Nimply* minmax(Nim* nim) {
     destroyStack(stack);
 
     return ply;
+}
+
+void randomStrategy(Nim* nim, bool print) {
+    MovesArray* moves = possibleMoves(nim);
+
+    if (moves->numItems < 1) {
+        fprintf(stderr, "There are no moves available!\n");
+        exit(1);
+    }
+    
+    srand(time(NULL));
+    int r = rand() % moves->numItems;
+    Nimply* ply = moves->array[r];
+    nimming(nim, ply);
+    if (print){
+        printf("Random - (%d, %d)\n", ply->row, ply->numSticks);
+        printNim(nim);
+        printf("\n");
+    } 
+
+    destroyMovesArray(moves);
 }

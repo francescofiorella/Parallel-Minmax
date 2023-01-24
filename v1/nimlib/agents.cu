@@ -21,17 +21,6 @@ __global__ void GPU_minmax(Nim* nim, MovesArray* moves, Nimply* plys, ResultArra
     // 1 - Calculate only the global result
     // 2 - Calculate the shared and the global result
     
-    // if (bid == 0 && tid == 0) {
-    //     // initialize the global output
-    //     // the max number of results is equal to the available moves => the max num of moves is rows^2
-        
-    //     // calculate the first moves
-    //     possibleMoves(nim, moves);
-    //     results->numItems = moves->numItems;
-    // }
-    
-    // __syncthreads();
-    
     if (bid >= moves->numItems)
         return;
     
@@ -73,8 +62,6 @@ __global__ void GPU_minmax(Nim* nim, MovesArray* moves, Nimply* plys, ResultArra
     // works also if nim is ended
     if (stopComputation == 0 && tid >= sharedMoves.numItems)
         return;
-
-    // __syncthreads();
 
     Nim newBoard;
     int player = sharedPlayer;
@@ -128,35 +115,6 @@ __global__ void GPU_minmax(Nim* nim, MovesArray* moves, Nimply* plys, ResultArra
             return;
     }
 }
-
-// let's remove alpha beta pruning and max depth constrains
-// push in the stack every move, using the same evaluations pointer
-// at every move, push every move below
-// use the depth value to discriminate between layers
-// until 1024 (!?)
-
-// modify the algorithm in order to perform one evaluation per thread, or
-// use the same algorithm but run it several times in different threads
-
-
-
-// bid e tid 0
-// calcola mosse per nim originale
-// inizializza vettore risultati [results]
-
-// un bid per ogni mossa [25]
-
-// tid 0
-// applica mossa bid
-// controlla se terminato -> se si, aggiungi a results
-// inverti player
-// calcola mosse per nuova board
-
-// tid da 0 a 25
-// applica mossa tid
-// controlla se terminato -> se si, aggiungi a [?]
-// inverti player
-// fai partire loop per ogni thread
 
 // sharedResults is the output
 __device__ void standard_minmax(Nim* nim, int player, unsigned int tid, Result* sharedResults) {
