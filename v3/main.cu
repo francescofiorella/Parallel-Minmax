@@ -39,7 +39,7 @@ int main(void) {
 
     // Execute the minmax on the GPU device iteratively, until the game ends
     unsigned int a = 0;
-    while(isNotEnded(nim) && a ==  0) {
+    while(isNotEnded(nim) && a == 0) {
         a++;
         // Allocate the memory on the CPU
         results = (unsigned char*)malloc(maxMoves * sizeof(unsigned char));

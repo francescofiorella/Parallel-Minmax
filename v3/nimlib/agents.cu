@@ -10,20 +10,18 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     // Associate thread id and block id
     unsigned int bid = blockIdx.x;
     unsigned int tid = threadIdx.x;
-    unsigned int maxThreads = blockDim.x;
 
     unsigned int stopComputation = 0;
     // stopComputation values:
     // 0 - Keep calculating
     // 1 - Calculate only the global result
     // 2 - Calculate the shared and the global result
-    
+
     if (bid >= numPlys)
         return;
-    
-    __syncthreads();
 
-    const unsigned int totArrays = 1 + (maxMoves - 1) + pow((maxMoves - 1), 2);
+    // const unsigned int totArrays = maxMoves + (maxMoves - 1) * (maxMoves - 1); // 1 + n + n^2
+    const unsigned int totArrays = maxMoves; // 1 + n
 
     // Ex for num_rows = 5
     // Number of arrays: 25^0 + 25^1 + 25^2 = 651 arrays
@@ -57,20 +55,30 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
             // if bid == 0 and tid == 0 => should put 16 in the last element
             if (bid == 0)
                 stopComputation = 1;
-        } else {
-            // calculate the new moves on shared array
-            sharedNumPlys[0] = possibleMoves(newBoard, numRows, sharedMoves[0], -1);
-            sharedBoards[0] = newBoard;
-        }        
+        }
+
+        // calculate the new moves on shared array
+        sharedBoards[0] = newBoard;
+        sharedNumPlys[0] = possibleMoves(newBoard, numRows, sharedMoves[0], -1);
     }
 
     __syncthreads();
 
     /* Level 1 */
     // player = -1;
+    unsigned int l1_index;
+    unsigned int shift;
+    if (tid < maxMoves-1) {
+        l1_index = tid + 1;
+        shift = 0;
+    } else {
+        l1_index = (tid - (maxMoves - 1)) / (maxMoves - 2) + 1;
+        shift = (tid - (maxMoves - 1)) % (maxMoves - 2) + 1;
+    }
+
+    __syncthreads();
 
     if (stopComputation == 0 && tid < sharedNumPlys[0]) {
-        unsigned int l1_index = tid + 1; // from 1 to 25
         // apply tid move
         unsigned char move = sharedMoves[0][tid];
         unsigned int newBoard = nimming(sharedBoards[0], numRows, move);
@@ -79,16 +87,15 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
         // check if nim is ended
         if (!isNotEnded(newBoard)) {
             sharedResults[0][tid] = 128 + (move & 127);
-
             sharedNumPlys[l1_index] = 0;
 
             // jump to min/max evaluation            
             if (tid == 0)
                 stopComputation = 2;
-        } else {
-            sharedNumPlys[l1_index] = possibleMoves(newBoard, numRows, sharedMoves[l1_index], -1);
-            sharedBoards[l1_index] = newBoard;
         }
+
+        sharedBoards[l1_index] = newBoard;
+        sharedNumPlys[l1_index] = possibleMoves(newBoard, numRows, sharedMoves[l1_index], -1);
     }
 
     __syncthreads();
@@ -96,18 +103,9 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     /* Level 2 */
     // player = 1;
 
-    unsigned int l1_index;
-    unsigned int shift;
-    if (tid > numRows) {
-        l1_index = tid + 1;
-        shift = 0;
-    } else {
-        l1_index = (tid - (maxMoves - 1)) / (maxMoves - 2) + 1;
-        shift = (tid - (maxMoves - 1)) % (maxMoves - 2) + 1;
-    }
-    
-    unsigned int l2_index = tid + 1 + maxMoves-1; // from 26 to 651
-    unsigned int newBoard;
+    // unsigned int l2_index = tid + 1 + maxMoves-1; // from 26 to 651
+    // if (bid == 1) printf("T %d - SH %d - L1 %d - Num %d\n", tid, shift, l1_index, sharedNumPlys[l1_index]);
+    unsigned int newBoard = 0;
     if (stopComputation == 0 && sharedNumPlys[l1_index] > shift) {
         unsigned char move = sharedMoves[l1_index][shift];
         newBoard = nimming(sharedBoards[l1_index], numRows, move);
@@ -116,18 +114,14 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
         // check if nim is ended
         if (!isNotEnded(newBoard)) {
             sharedResults[l1_index][shift] = 128 + (move & 127);
-
             // sharedNumPlys[l2_index] = 0;
 
             // jump to min/max evaluation            
             if (tid == 0)
                 stopComputation = 3;
-            else
-                return;
-        } else {
-            // sharedNumPlys[l2_index] = possibleMoves(newBoard, numRows, sharedMoves[l2_index], -1);
-            // sharedBoards[l2_index] = newBoard;
         }
+        // sharedNumPlys[l2_index] = possibleMoves(newBoard, numRows, sharedMoves[l2_index], -1);
+        // sharedBoards[l2_index] = newBoard;
     }
 
     /* Level 3 */
@@ -136,25 +130,24 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     
     __syncthreads();
 
-    if (stopComputation == 0) {
+    if (stopComputation == 0 && newBoard != 0) {
         // start to calculate the minmax, store the result in sharedResults
         standard_minmax(newBoard, numRows, -1, shift, sharedResults[l1_index]);
-
-        if (tid != 0)
-            return;
     }
 
-    // when all secondary threads finished
-    __syncthreads();
+    if (tid >= sharedNumPlys[0])
+        return;
 
     if (stopComputation != 2) {
         // calculate the best move from the shared results
         sharedResults[l1_index][sharedNumPlys[l1_index]] = 16;
         sharedResults[0][shift] = minResultArray(sharedResults[l1_index]);
-        if (bid != 0) return;
     }
 
     __syncthreads();
+    
+    if (tid != 0)
+        return;
 
     if (stopComputation != 1) {
         // calculate the best move from the shared results
@@ -164,6 +157,8 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
 
     __syncthreads();
 
+    if (bid != 0) return;
+
     // insert the termination char
     results[numPlys] = 16;
 }
@@ -171,8 +166,8 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
 // sharedResults is the output
 __device__ void standard_minmax(unsigned int nim, unsigned int numRows, int player, unsigned int tid, unsigned char* sharedResults) {
     const unsigned int maxMoves = 26;
-    const unsigned int maxDepth = 4;
-    const unsigned int maxStackSize = 7;
+    const unsigned int maxDepth = 5;
+    const unsigned int maxStackSize = 8;
     /*
     | Max Depth | Max Stack Size |
     | --------- | -------------- |

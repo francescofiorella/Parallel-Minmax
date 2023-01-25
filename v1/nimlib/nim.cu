@@ -5,7 +5,7 @@
 
 __host__ __device__ void printNimply(Nimply* nimply) {
     if (!nimply) {
-        printf("Nimply - NULL");
+        printf("Nimply - NULL\n");
         return;
     }
     printf("Nimply - Row: %d, Num: %d\n", nimply->row, nimply->numSticks);
