@@ -23,11 +23,6 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     // const unsigned int totArrays = maxMoves + (maxMoves - 1) * (maxMoves - 1); // 1 + n + n^2
     const unsigned int totArrays = maxMoves; // 1 + n
 
-    // Ex for num_rows = 5
-    // Number of arrays: 25^0 + 25^1 + 25^2 = 651 arrays
-    // Considering 1B for each element (unsigned char) and 26 elements
-    // Shared memory occupied: 651 * 26 = 16276B = 15.89kB
-    // On a maximum of 96kB
     __shared__ unsigned char sharedResults[totArrays][maxMoves];
     __shared__ unsigned char sharedMoves[totArrays][maxMoves];
     __shared__ unsigned char sharedNumPlys[totArrays];

@@ -14,7 +14,7 @@ The Nimply struct is now an unsigned char, and has been unified with the Result.
 - the first four LSB represent the number of sticks to be removed (0 - 15),
 - the following three represent the row index (0 - 7),
 - and the last one is the value (of the result).
-The value bit is setted to 0 for val == -1, and to 1 for val == 1.
+The value bit is set to 0 for val == -1, and to 1 for val == 1.
 This representation is perfect for Nim board with maximum eigth rows;
 for higher rows number, an unsigned int type can be used.
 */

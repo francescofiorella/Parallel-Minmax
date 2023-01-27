@@ -20,6 +20,11 @@
 
 ## CPU Profiling
 
+> gcc ./v0/main.c ./v0/nimlib/nim.c ./v0/nimlib/utils.c ./v0/nimlib/agents.c -pg -o v0.out
+> 
+> ./v0.out
+> 
+> gprof -b v0.out gmon.out > ./log/v0.log
 
 ## Utils
 
