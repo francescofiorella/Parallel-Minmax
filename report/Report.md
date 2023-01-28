@@ -6,15 +6,16 @@
   - [1.2. Minmax](#12-minmax)
   - [1.3. Project aim and Alpha-Beta pruning](#13-project-aim-and-alpha-beta-pruning)
   - [1.4. Parallel MinMax on CUDA](#14-parallel-minmax-on-cuda)
-- [2. Related work](#2-related-work)
-- [3. Proposed method](#3-proposed-method)
+- [2. Related Work](#2-related-work)
+- [3. Proposed Method](#3-proposed-method)
   - [3.1. Iterative form](#31-iterative-form)
-  - [3.2. C Implementation](#32-c-implementation)
-  - [3.3. First CUDA version](#33-first-cuda-version)
-  - [3.4. Data structures optimization](#34-data-structures-optimization)
-  - [3.5. More levels in shared memory](#35-more-levels-in-shared-memory)
-- [4. Results and analysis](#4-results-and-analysis)
-- [5. Conclusion](#5-conclusion)
+  - [3.2. v0: C Implementation](#32-v0-c-implementation)
+  - [3.3. v1: First CUDA version](#33-v1-first-cuda-version)
+  - [3.4. v2: Data structures optimization](#34-v2-data-structures-optimization)
+  - [3.5. v3: More levels in shared memory](#35-v3-more-levels-in-shared-memory)
+  - [3.6. v4: Everything in kernel](#36-v4-everything-in-kernel)
+- [4. Results and Analysis](#4-results-and-analysis)
+- [5. Conclusion and Future Work](#5-conclusion-and-future-work)
 - [6. References](#6-references)
 
 # 1. Introduction
@@ -60,7 +61,7 @@ Using CUDA to accelerate the Minimax algorithm can bring several benefits:
 
 Overall, using CUDA to accelerate the Minimax algorithm can lead to a faster and more efficient game-playing AI, which can improve the overall user experience and allows to handle larger and more complex game states.
 
-# 2. Related work
+# 2. Related Work
 
 Minimax was firstly described in the 1950s by John von Neumann and Oskar Morgenstern in their book "Theory of Games and Economic Behavior". The algorithm was originally developed to analyze two-player, zero-sum games such as chess, checkers, and tic-tac-toe, and was later adapted and expanded to work with other types of games, such as non-zero-sum games and games with more than two players. It has also been used in other areas such as decision making, operations research, and artificial intelligence.
 
@@ -91,7 +92,7 @@ Here, I am reporting a visual representation of the technique, taken from the pa
 
 The main problem of this implementation is that they executed the sequential part twice, so a proper choice of values "p" and "s" is very important.
 
-# 3. Proposed method
+# 3. Proposed Method
 
 ## 3.1. Iterative form
 
@@ -107,24 +108,26 @@ The iterative version is characterized by an higher complexity if compared to th
 First of all, the intermediate loop on all the available moves for a particular board state is avoided, as now, at each loop step, previously calculated result is assigned and the next move is evaluated by passing the calculation to the next entry, which will refers to another board state.<br>
 Another small optimization is avoiding to calculate the whole array of possible moves at each step, by just calculating the current move.
 
-## 3.2. C Implementation
+## 3.2. v0: C Implementation
 
 The Nim library and the minmax algorithm were adapted from Python to C, before parallelizing the algorithm itself in a CUDA kernel. This allowed a better understanding of the problem and some better criteria for the profiling and evaluation phase. The Nim class was created, and it contains a pointer to an array in which the board rows are stored: each element is an integer that indicates the number of remaining objects in that specific row. The array, along with all the other data are created by exploiting the malloc function to dynamically allocate memory at runtime.<br>
 This implementation required the creation of several new data classes, along with several dynamic arrays like the evaluation list and the stack.
 
 This lead to some disadvantages like a high complexity and the need to resize the allocated memory if the number of element exceed the current maximum size; however, the algorithm resulted to be slightly faster then the python implementation.<br>
-Moreover, since all the data structures are allocated in the dynamic memory, the "free" function must be used carefully, both for avoiding memory waste and incorrect memory deallocation that can lead to a segmentation fault. 
+Moreover, since all the data structures are allocated in the dynamic memory, the "free" function must be used carefully, both for avoiding memory waste and incorrect memory deallocation that can lead to a segmentation fault.
 
-## 3.3. First CUDA version
+Since the algorithm was quite slow and the Nvidia Jetson Nano has limited resources, the masimum depth reachable from the algorithm was set to 7.
+
+## 3.3. v1: First CUDA version
 
 The main approach used in the implementation is to use the GPU to parallelize the search process and node-creation process by evaluating multiple game states simultaneously. This can be done by dividing the game tree into smaller subtrees and assigning each subtree to a different CUDA thread or block.
 
 The first version developed tries to exploit the GPU's kernels by using a modified version of the previously-created C Nim library.<br>
-All the data structures were adapted to a GPU implementation, so dynamic arrays have been replaced with static ones that can be placed in the global and shared memory of the Graphics Processing Unit. Moreover, since the majority of pointers were removed, the core minmax function was adapted and all the static allocation were placed before the start of the algorithm itself, contributing to a higher complexity.
+All the data structures were adapted to a GPU implementation, so dynamic arrays have been replaced with static ones that can be placed in the global and shared memory of the Graphics Processing Unit. Moreover, since the majority of pointers were removed, the standard minmax function was adapted and all the static allocation were placed before the start of the algorithm itself, contributing to a higher complexity.
 
 The function has been split in three phases, executed respectively in CPU, GPU, and CPU: the first one consists is held in the host machine, that calculates all the possible moves that can be made on the starting game board; then, the board and the moves array are copied in the GPU global memory and the kernel is called. Here, a number of blocks equal to the total number of available moves are used, and each block contains the same number of threads.
 
-Firstly, the thread 0 of each block applies the move and computes the new state of the board by using the blockId as index for the global moves array; the resulting boards are stored in the shared memory along with a new array of the new possible moves. Then, each block thread applies the new move, obtained by exploiting the threadId and initialize a result array to be stored in the shared memory. At this point, the core minmax algorithm is executed at thread level, so that a high level of parallellism is achieved, and the used variables are stored into the faster local registers.<br>
+Firstly, the thread 0 of each block applies the move and computes the new state of the board by using the blockId as index for the global moves array; the resulting boards are stored in the shared memory along with a new array of the new possible moves. Then, each block thread applies the new move, obtained by exploiting the threadId and initialize a result array to be stored in the shared memory. At this point, the standard minmax algorithm is executed at thread level, so that a high level of parallellism is achieved, and the used variables are stored into the faster local registers.<br>
 The minmax local result is then stored into the shared results array and processed at block level.
 
 At the end of the second phase, the block-level result is stored in the global memory, ready to be transfered to the host machine.
@@ -137,9 +140,9 @@ Here are reported two figures that show the grid-level and the block-level behav
 
 ![V1 block schema](v1_block.png)
 
-> Note that each node is a game state and the lower rectangle represents the core minmax algorithm.
+> Note that each node is a game state and the lower rectangle represents the standard minmax algorithm.
 
-## 3.4. Data structures optimization
+## 3.4. v2: Data structures optimization
 
 This first version of the algorithm is fully functional but it is pretty slow: the used data structures require a lot of memory read/write that slow down a lot the kernel execution.
 
@@ -166,47 +169,102 @@ Thanks to the reducted representation and the union of Nimply and Result, all th
 
 The stack size was reduced by experimentally calculating the exact number of needed entry and by reducing the size of the entry itself: all the previous data structure changes contributed to a big decrease of the size, along with some changes on some integers, like the indexes and the depth, that were adapted to "char".
 
-At the end, these change allowed the new kernel to result a lot faster then the previous version.
+At the end, these changes, along with the constant memory exploitation, allowed the new kernel to result a lot faster then the previous version.
 
-## 3.5. More levels in shared memory
+## 3.5. v3: More levels in shared memory
 
 After the data optimization, a third attempt to improve the algorithm was implemented.
 The first and the third phases on the host machine were not changed, while the second one, executed in the GPU kernel, has been extended.
 
-The aim of this version is achieving a higher level of parallelism by removing one level of graph elaboration from the core minmax and adding it before its execution.<br>
-This is achieved by creating several parallel results array in the shared memory that are filled with the outcome of the minmax core execution.<br>
+The aim of this version is achieving a higher level of parallelism by removing one level of tree elaboration from the standard minmax and adding it before its execution.<br>
+This is achieved by creating several parallel results array in the shared memory that are filled with the outcome of the minmax standard execution.<br>
 Like the previous version, each move calculated in the CPU is assigned to a different block, but now each block contains the square of the threads, and each of them calculat one of the element of the results arrays.
 
 Below is reported a figure that shows the block-level behaviour of the kernel:
 
 ![V3 block schema](v3_block.png)
 
-# 4. Results and analysis
+## 3.6. v4: Everything in kernel
 
-To report:
-- speedup: comparison between execution times
-  - speedup between v0 and v2
-  - speedup between different sizes board
-  - speedup between v1, v2, and v3
-- warp divergence
-- memory
-  - malloc time
-  - memcpy time
-  - number of global/shared/local read/writes
-  - local hit rate
+The second version of the CUDA algorithm resulted to be the fastest one; however, the overhead added by the memory transactions between the host and the device could be removed.
 
-# 5. Conclusion
+The first transaction is at start of the kernel, when the host calculates all the possible moves and then passes the array to the GPU global memory; the second one is at the end, when the device calculates the results and passes the array to the host, that elaborate it to get the optimal move.
 
-The main approach is to use the GPU to parallelize the search process by evaluating multiple game states simultaneously. This can be done by dividing the game tree into smaller subtrees and assigning each subtree to a different CUDA thread or block.
+These operations were included in the kernel, eliminating the first transaction and reducing a lot the second one (now, only the optimal move is transferred).<br>
+This led to a small speed up for boards with a few rows, and a big speed up for bigger boards.
 
-Another approach is to use CUDA to accelerate the evaluation function, which is used to determine the value of a game state. This can be done by using the GPU to perform complex calculations such as matrix multiplications or neural network evaluations.
+# 4. Results and Analysis
 
-It's important to note that CUDA is a tool for parallel programming and can be used to speed up many types of computations, but it's not a silver bullet. The implementation of Minimax with or without alpha-beta pruning on CUDA should be evaluated case by case, depending on the game and the hardware used.
+The following table reports the durations in milliseconds of the minmax algorithm to calculate the first move of Nim for different board sizes. The maximum depth was set to 7.
+
+|    Board size     |   v0    |   v1   |   v2    |   v3    |   v4    |
+| :---------------: | :-----: | :----: | :-----: | :-----: | :-----: |
+|         2         |  0.00   |   -    |    -    |    -    |  0.16   |
+|         3         |  0.00   |   -    |    -    |    -    |  6.50   |
+|         4         |  10.00  |   -    |    -    |    -    |  21.89  |
+|         5         | 160.00  | 565.56 | 218.10  | 2960.00 | 107.41  |
+|         6         | 810.00  |   -    | 2054.15 |    -    | 452.11  |
+|         7         | 4690.00 |   -    |    -    |    -    | 1438.71 |
+|         8         |    -    |   -    |    -    |    -    | 3829.33 |
+| 8 (max depth = 5) | 550.00  |   -    |    -    |    -    |  82.14  |
+
+Note that for a board size bigger then 5, only the algorithms that were able to calculate the optimal move in a  reasonable time are reported; while, for smaller board sizes, the non-reported information were not relevant.
+
+The fourth version of the algorithm was the fastest one, as a matter of fact it has the biggest speed up if compared to the C version. The acceleretion factors have been calculated by dividing the duration of the serial algorithm to the duration of the corresponding CUDA version.
+
+| Board size |  v0   |  v1   |  v2   |  v3   |  v4   |
+| :--------: | :---: | :---: | :---: | :---: | :---: |
+|     5      | 1.00  | 0.28  | 0.73  | 0.054 | 1.49  |
+
+A Nim board of the medium size of 5 rows was used to evaluate the best version of the algorithm. Values below 1 denotes better performance of the CPU.
+
+| Board size |  v0   |  v4   |
+| :--------: | :---: | :---: |
+|     2      | 1.00  |   -   |
+|     3      | 1.00  |   -   |
+|     4      | 1.00  | 0.46  |
+|     5      | 1.00  | 1.49  |
+|     6      | 1.00  | 1.79  |
+|     7      | 1.00  | 3.26  |
+|     8      | 1.00  |   -   |
+
+The duration time of v0 and v4 was included in the following chart to emphasize the tendency of the GPU to progressively outperform the CPU on larger boards.
+
+![Duration comparison plot](duration_plot.png)
+
+The bar chart below shows a comparison between the number of global and shared transations (read and write) playing with a board of 5 rows.
+
+![Memory comparison bar chart](memory_bar_chart.png)
+
+Based on the analysis of the results, these observation were found:
+- The data structure optimization was quite successful, between v1 and v2, the global transactions decreased by 98.98%, while the shared transactions decreased by 63.65%.
+- Despite the higher level of parallellization, v3 performs too many transactions in the shared memory, and ends up being slower then the previous version.
+- The number of global transaction between v4 and v2 increased, this is because the minimum value research was moved into the kernel; however, this leads to better performance if combined with less shared memory transactions and the removal of host-to-device transactions.
+- The algorithm resulted extremely efficient for bigger boards, while the GPU resources are underused on smaller
+boards, where the memory transactions takes up a significant part of the total duration.
+- One of the main problems of these implementation is the warp divergence. As a matter of fact, using the standard minmax algorithm leads a lot of if statements that don't fit the GPU warp architecture.
+- The used GPU technology is not able to perform a full create-and-search tree algorithm, without setting up a maximum explorable depth.
+
+# 5. Conclusion and Future Work
+
+The aim of the project was fully achieved: the GPU is able to calculate the Nim optimal move faster than the CPU for almost all the board sizes, despite the relatively low complexity of the Nim game.<br>
+This represents the starting point for the study of more complex games, like Chess and Go, that should be adaptable to an efficient implementation on a GPU kernel.
+
+The main approach used in this implementation is to parallelize the tree creation and the value searchprocess, by evaluating multiple game states simultaneously in different CUDA blocks and threads.<br>
+Another possible approach is to use CUDA to accelerate the evaluation function, which is used to determine the value of a game state. This can be done by using the GPU to perform complex calculations such as matrix multiplications or neural network evaluations. An example could be parallelizing the "nim sum" calculation, or all the min/max search on teh results array.
+
+Another possible improvement can be done by reducing or completely removing the standard minmax at the end of each thread. This can be done by using two main approach:
+- Fully exploiting the available blocks and threads, considering the limited amouth of shared and local memory available and increasing the level of collaboration between threads.
+- Performing the first part of the tree creation and evaluation in the CPU host, then passing to the kernel the intermediate board states and leaving to it the most parallelizable part of the tree.
+
+This second approach is the more interesting one, since the first part of the tree is characterized by low complexity, and a high efficiency algorithm can be implemented by searching for the perfect balance between the CPU and the GPU evaluations.
+
+It's important to note that CUDA is a tool for parallel programming and can be used to speed up many types of computations, but it's not a silver bullet. The implementation of minmax with or without alpha-beta pruning on CUDA should be evaluated case by case, depending on the game and the hardware used.
 
 # 6. References
 
 1. Nvidia Developer - https://developer.nvidia.com/
 2. Profiler User’s Guide - https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvprof-overview
-3. "Parallel Minimax Tree Searching on GPU" - Kamil Rocki and Reiji Suda
-4. "Parallel Alpha-Beta Algorithm on the GPU" - Damjan Strnad and Nikola Guid
-5. "CUDA Implementation of Computer Go Game Tree Search" - Christine Johnson, Lee Barford, Sergiu M, Dascalu, and Frederick C. Harris, Jr.
+1. "Parallel Minimax Tree Searching on GPU" - Kamil Rocki and Reiji Suda
+2. "Parallel Alpha-Beta Algorithm on the GPU" - Damjan Strnad and Nikola Guid
+3. "CUDA Implementation of Computer Go Game Tree Search" - Christine Johnson, Lee Barford, Sergiu M, Dascalu, and Frederick C. Harris, Jr.
