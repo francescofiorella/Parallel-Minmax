@@ -1,13 +1,16 @@
 #include <cstdio>
 #include <stdlib.h>
 #include <cuda_runtime.h>
-#include <math.h>
 #include "nimlib.cuh"
 
 #define NUM_MOVES 26 // NUM_ROWS*NUM_ROWS + 1 (for the termination character)
 
-__global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char* moves, unsigned char numPlys, unsigned char* results) {
+__device__ unsigned char moves[NUM_MOVES];
+__device__ unsigned char results[NUM_MOVES];
+__device__ int min_val;
+__device__ unsigned char numPlys;
 
+__global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char* ply) {
     // Associate thread id and block id
     unsigned int bid = blockIdx.x;
     unsigned int tid = threadIdx.x;
@@ -18,145 +21,100 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     // 1 - Calculate only the global result
     // 2 - Calculate the shared and the global result
 
+    if (bid == 0 && tid == 0) {
+        results[numPlys] = 16;
+        min_val = 2;
+        numPlys = possibleMoves(nim, numRows, moves, -1);
+    }
+    
     if (bid >= numPlys)
         return;
+    
+    __syncthreads();
+    
+    __shared__ unsigned char sharedMoves[NUM_MOVES];
+    __shared__ unsigned char sharedNumPlys;
+    sharedMoves[0] = 16;
+    sharedNumPlys = 0;
 
-    // const unsigned int totArrays = NUM_MOVES + (NUM_MOVES - 1) * (NUM_MOVES - 1); // 1 + n + n^2
-    const unsigned int totArrays = NUM_MOVES; // 1 + n
-
-    __shared__ unsigned char sharedResults[totArrays][NUM_MOVES];
-    __shared__ unsigned char sharedMoves[totArrays][NUM_MOVES];
-    __shared__ unsigned char sharedNumPlys[totArrays];
-    __shared__ unsigned int sharedBoards[totArrays];
-
-    /* Level 0 */
+    __shared__ unsigned int sharedBoard;
     // player = 1;
-
     if (tid == 0) {
         // calculate the new board and invert the current player
         // select the move from bid
         // calculate the resulting board for the current move
         unsigned char move = moves[bid];
-        unsigned int newBoard = nimming(nim, numRows, move);
+        sharedBoard = nimming(nim, numRows, move);
         // player = -1;
 
         // check if the game is ended, if yes update the results
-        if (!isNotEnded(newBoard)) {
+        if (!isNotEnded(sharedBoard)) {
             // 0 -> -1
             // 1 -> 1
             results[bid] = 0 + (move & 127);
 
-            sharedNumPlys[0] = 0;
-
-            // if bid == 0 and tid == 0 => should put 16 in the last element
+            // jump to min/max ending evaluation if bid == 0 and tid == 0
             if (bid == 0)
                 stopComputation = 1;
         }
 
         // calculate the new moves on shared array
-        sharedBoards[0] = newBoard;
-        sharedNumPlys[0] = possibleMoves(newBoard, numRows, sharedMoves[0], -1);
+        sharedNumPlys = possibleMoves(sharedBoard, numRows, sharedMoves, -1);
     }
 
     __syncthreads();
 
-    /* Level 1 */
+    // works also if nim is ended
+    if (stopComputation == 0 && tid >= sharedNumPlys)
+        return;
+
+    // declare Nim for this thread
+    unsigned int newBoard;
     // player = -1;
-    unsigned int l1_index;
-    unsigned int shift;
-    if (tid < NUM_MOVES-1) {
-        l1_index = tid + 1;
-        shift = 0;
-    } else {
-        l1_index = (tid - (NUM_MOVES - 1)) / (NUM_MOVES - 2) + 1;
-        shift = (tid - (NUM_MOVES - 1)) % (NUM_MOVES - 2) + 1;
-    }
-
-    __syncthreads();
-
-    if (stopComputation == 0 && tid < sharedNumPlys[0]) {
+    __shared__ unsigned char sharedResults[NUM_MOVES];
+    sharedResults[0] = 16;
+    if (stopComputation == 0) {
         // apply tid move
-        unsigned char move = sharedMoves[0][tid];
-        unsigned int newBoard = nimming(sharedBoards[0], numRows, move);
+        unsigned char move = sharedMoves[tid];
+        newBoard = nimming(sharedBoard, numRows, move);
         // player = 1;
 
         // check if nim is ended
         if (!isNotEnded(newBoard)) {
-            sharedResults[0][tid] = 128 + (move & 127);
-            sharedNumPlys[l1_index] = 0;
+            sharedResults[tid] = 128 + (move & 127);
+            
+            if (tid != 0)
+                return;
 
-            // jump to min/max evaluation            
-            if (tid == 0)
-                stopComputation = 2;
+            // stop the kernel only if tid != 0 else evaluate all the shared
+            stopComputation = 2;
         }
-
-        sharedBoards[l1_index] = newBoard;
-        sharedNumPlys[l1_index] = possibleMoves(newBoard, numRows, sharedMoves[l1_index], -1);
     }
 
     __syncthreads();
 
-    /* Level 2 */
-    // player = 1;
-
-    // unsigned int l2_index = tid + 1 + NUM_MOVES-1; // from 26 to 651
-    // if (bid == 1) printf("T %d - SH %d - L1 %d - Num %d\n", tid, shift, l1_index, sharedNumPlys[l1_index]);
-    unsigned int newBoard = 0;
-    if (stopComputation == 0 && sharedNumPlys[l1_index] > shift) {
-        unsigned char move = sharedMoves[l1_index][shift];
-        newBoard = nimming(sharedBoards[l1_index], numRows, move);
-        // player = -1;
-
-        // check if nim is ended
-        if (!isNotEnded(newBoard)) {
-            sharedResults[l1_index][shift] = 128 + (move & 127);
-            // sharedNumPlys[l2_index] = 0;
-
-            // jump to min/max evaluation            
-            if (tid == 0)
-                stopComputation = 3;
-        }
-        // sharedNumPlys[l2_index] = possibleMoves(newBoard, numRows, sharedMoves[l2_index], -1);
-        // sharedBoards[l2_index] = newBoard;
-    }
-
-    /* Level 3 */
-    // player = -1;
-    // Can be done in global memory [we don't have enough threads]
-    
-    __syncthreads();
-
-    if (stopComputation == 0 && newBoard != 0) {
+    if (stopComputation == 0) {
         // start to calculate the minmax, store the result in sharedResults
-        standard_minmax(newBoard, numRows, -1, shift, sharedResults[l1_index]);
+        standard_minmax(newBoard, numRows, 1, tid, sharedResults);
     }
 
-    if (tid >= sharedNumPlys[0])
-        return;
-
-    if (stopComputation != 2) {
-        // calculate the best move from the shared results
-        sharedResults[l1_index][sharedNumPlys[l1_index]] = 16;
-        sharedResults[0][shift] = minResultArray(sharedResults[l1_index]);
-    }
-
-    __syncthreads();
-    
     if (tid != 0)
         return;
 
-    if (stopComputation != 1) {
-        // calculate the best move from the shared results
-        sharedResults[0][sharedNumPlys[0]] = 16;
-        results[bid] = maxResultArray(sharedResults[0]);
-    }
-
+    // when all secondary threads finished
     __syncthreads();
 
-    if (bid != 0) return;
+    if (stopComputation != 1) {
+        // calculate the best move from the shared results
+        sharedResults[sharedNumPlys] = 16;
+        results[bid] = maxResultArray(sharedResults);
+    }
 
-    // insert the termination char
-    results[numPlys] = 16;
+    int val = results[bid] >> 7 == 0 ? -1 : 1;
+    if (val < min_val) {
+        min_val = val;
+        *ply = results[bid] & 127;
+    }
 }
 
 // sharedResults is the output

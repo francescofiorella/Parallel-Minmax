@@ -107,7 +107,7 @@ __host__ __device__ unsigned char maxResultArray(unsigned char results[]) {
     return results[max_index];
 }
 
-__device__ void stackPush(Stack* stack, unsigned int maxStackSize, unsigned int board, int alpha, int beta, int player, int depth, int plyIndex, int stackIndex, unsigned char evaluations[], unsigned char result) {
+__device__ void stackPush(Stack* stack, unsigned int maxStackSize, unsigned int board, int alpha, int beta, int player, unsigned char depth, int plyIndex, unsigned char stackIndex, unsigned char evaluations[], unsigned char result) {
     if (stack->stackSize == maxStackSize) {
         printf("the stack size is not enough!\n");
         return;

@@ -1,0 +1,14 @@
+==14142== NVPROF is profiling process 14142, command: ./v3.out
+==14142== Warning: Unified Memory Profiling is not supported on the underlying platform. System requirements for unified memory can be found at: http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-requirements
+==14142== Profiling application: ./v3.out
+==14142== Profiling result:
+   Start  Duration            Grid Size      Block Size     Regs*    SSMem*    DSMem*      Size  Throughput  SrcMemType  DstMemType           Device   Context    Stream  Name
+481.01ms     937ns                    -               -         -         -         -       26B  26.463MB/s    Pageable      Device  NVIDIA Tegra X1         1         7  [CUDA memcpy HtoD]
+481.92ms  2.96122s             (25 1 1)       (625 1 1)        38  1.4473KB        0B         -           -           -           -  NVIDIA Tegra X1         1         7  GPU_minmax(unsigned int, unsigned int, unsigned char*, unsigned char, unsigned char*) [109]
+3.44313s  2.5000us                    -               -         -         -         -       26B  9.9182MB/s      Device    Pageable  NVIDIA Tegra X1         1         7  [CUDA memcpy DtoH]
+
+Regs: Number of registers used per CUDA thread. This number includes registers used internally by the CUDA driver and/or tools and can be more than what the compiler shows.
+SSMem: Static shared memory allocated per CUDA block.
+DSMem: Dynamic shared memory allocated per CUDA block.
+SrcMemType: The type of source memory accessed by memory operation/copy
+DstMemType: The type of destination memory accessed by memory operation/copy

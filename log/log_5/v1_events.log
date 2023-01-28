@@ -1,36 +1,36 @@
-==17049== NVPROF is profiling process 17049, command: ./v1.out
-==17049== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==17049== Profiling application: ./v1.out
-==17049== Profiling result:
-==17049== Event result:
+==11431== NVPROF is profiling process 11431, command: ./v1.out
+==11431== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==11431== Profiling application: ./v1.out
+==11431== Profiling result:
+==11431== Event result:
 Invocations                                Event Name         Min         Max         Avg       Total
 Device "NVIDIA Tegra X1 (0)"
     Kernel: GPU_minmax(Nim*, MovesArray*, Nimply*, ResultArray*, Result*)
-          1                 tex0_cache_sector_queries    99304645    99304645    99304645    99304645
-          1                 tex1_cache_sector_queries   141639281   141639281   141639281   141639281
-          1                  tex0_cache_sector_misses    98972782    98972782    98972782    98972782
-          1                  tex1_cache_sector_misses    90839450    90839450    90839450    90839450
-          1              l2_subp0_write_sector_misses    21132337    21132337    21132337    21132337
-          1              l2_subp1_write_sector_misses    19973642    19973642    19973642    19973642
-          1               l2_subp0_read_sector_misses    18261530    18261530    18261530    18261530
-          1               l2_subp1_read_sector_misses    18261530    18261530    18261530    18261530
-          1          l2_subp0_read_tex_sector_queries    49162602    49162602    49162602    49162602
-          1          l2_subp1_read_tex_sector_queries    48286288    48286288    48286288    48286288
-          1         l2_subp0_write_tex_sector_queries    36720867    36720867    36720867    36720867
-          1         l2_subp1_write_tex_sector_queries    35842098    35842098    35842098    35842098
-          1             l2_subp0_read_tex_hit_sectors    38005110    38005110    38005110    38005110
-          1             l2_subp1_read_tex_hit_sectors    36143706    36143706    36143706    36143706
-          1            l2_subp0_write_tex_hit_sectors    36612588    36612588    36612588    36612588
-          1            l2_subp1_write_tex_hit_sectors    35954519    35954519    35954519    35954519
-          1        l2_subp0_total_read_sector_queries    49159192    49159192    49159192    49159192
-          1        l2_subp1_total_read_sector_queries    48261585    48261585    48261585    48261585
-          1       l2_subp0_total_write_sector_queries    36640880    36640880    36640880    36640880
-          1       l2_subp1_total_write_sector_queries    35924977    35924977    35924977    35924977
+          1                 tex0_cache_sector_queries   125846341   125846341   125846341   125846341
+          1                 tex1_cache_sector_queries   115097585   115097585   115097585   115097585
+          1                  tex0_cache_sector_misses    90833579    90833579    90833579    90833579
+          1                  tex1_cache_sector_misses    98949105    98949105    98949105    98949105
+          1              l2_subp0_write_sector_misses    20135082    20135082    20135082    20135082
+          1              l2_subp1_write_sector_misses    21232174    21232174    21232174    21232174
+          1               l2_subp0_read_sector_misses    17403771    17403771    17403771    17403771
+          1               l2_subp1_read_sector_misses    17403771    17403771    17403771    17403771
+          1          l2_subp0_read_tex_sector_queries    48072949    48072949    48072949    48072949
+          1          l2_subp1_read_tex_sector_queries    49340840    49340840    49340840    49340840
+          1         l2_subp0_write_tex_sector_queries    36120590    36120590    36120590    36120590
+          1         l2_subp1_write_tex_sector_queries    36442377    36442377    36442377    36442377
+          1             l2_subp0_read_tex_hit_sectors    36819875    36819875    36819875    36819875
+          1             l2_subp1_read_tex_hit_sectors    37214961    37214961    37214961    37214961
+          1            l2_subp0_write_tex_hit_sectors    35954469    35954469    35954469    35954469
+          1            l2_subp1_write_tex_hit_sectors    36612638    36612638    36612638    36612638
+          1        l2_subp0_total_read_sector_queries    47473366    47473366    47473366    47473366
+          1        l2_subp1_total_read_sector_queries    51238265    51238265    51238265    51238265
+          1       l2_subp0_total_write_sector_queries    35975911    35975911    35975911    35975911
+          1       l2_subp1_total_write_sector_queries    36634166    36634166    36634166    36634166
           1       l2_subp0_read_sysmem_sector_queries           0           0           0           0
           1       l2_subp1_read_sysmem_sector_queries           0           0           0           0
           1      l2_subp0_write_sysmem_sector_queries           0           0           0           0
           1      l2_subp1_write_sysmem_sector_queries           0           0           0           0
-          1                         elapsed_cycles_sm   503665860   503665860   503665860   503665860
+          1                         elapsed_cycles_sm   503207914   503207914   503207914   503207914
           1                             gld_inst_8bit           0           0           0           0
           1                            gld_inst_16bit           0           0           0           0
           1                            gld_inst_32bit     6977005     6977005     6977005     6977005
@@ -50,11 +50,11 @@ Device "NVIDIA Tegra X1 (0)"
           1                           prof_trigger_06           0           0           0           0
           1                           prof_trigger_07           0           0           0           0
           1                            warps_launched          25          25          25          25
-          1                              inst_issued0  1662689524  1662689524  1662689524  1662689524
-          1                              inst_issued1   204208758   204208758   204208758   204208758
+          1                              inst_issued0  1655557731  1655557731  1655557731  1655557731
+          1                              inst_issued1   204208757   204208757   204208757   204208757
           1                              inst_issued2    19967888    19967888    19967888    19967888
           1                             inst_executed   244144370   244144370   244144370   244144370
-          1                      thread_inst_executed  2030785646  2030785646  2030785646  2030785646
+          1                      thread_inst_executed  2030785644  2030785644  2030785644  2030785644
           1   not_predicated_off_thread_inst_executed  1934882398  1934882398  1934882398  1934882398
           1                               local_store     1219914     1219914     1219914     1219914
           1                                local_load     4635030     4635030     4635030     4635030
@@ -69,9 +69,9 @@ Device "NVIDIA Tegra X1 (0)"
           1                              global_store          75          75          75          75
           1                          divergent_branch      501273      501273      501273      501273
           1                                    branch    19010790    19010790    19010790    19010790
-          1                             active_cycles   503575036   503575036   503575036   503575036
-          1                              active_warps  9410531000  9410531000  9410531000  9410531000
-          1                               active_ctas  9471645328  9471645328  9471645328  9471645328
+          1                             active_cycles   503117864   503117864   503117864   503117864
+          1                              active_warps  9412252320  9412252320  9412252320  9412252320
+          1                               active_ctas  9464507066  9464507066  9464507066  9464507066
           1                           sm_cta_launched          25          25          25          25
           1                   shared_ld_bank_conflict          48          48          48          48
           1                   shared_st_bank_conflict           0           0           0           0

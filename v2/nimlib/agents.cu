@@ -3,9 +3,11 @@
 #include <cuda_runtime.h>
 #include "nimlib.cuh"
 
-__global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char* moves, unsigned char numPlys, unsigned char* results) {
-    const unsigned int maxMoves = 26; // + 1 for the ending code (16)
+#define NUM_MOVES 26 // NUM_ROWS*NUM_ROWS + 1 (for the termination character)
 
+__device__ __constant__ unsigned char dev_moves[NUM_MOVES]; // the possible moves for the GPU device
+
+__global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char numPlys, unsigned char* results) {
     // Associate thread id and block id
     unsigned int bid = blockIdx.x;
     unsigned int tid = threadIdx.x;
@@ -21,7 +23,7 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     
     __syncthreads();
     
-    __shared__ unsigned char sharedMoves[maxMoves];
+    __shared__ unsigned char sharedMoves[NUM_MOVES];
     __shared__ unsigned char sharedNumPlys;
     sharedMoves[0] = 16;
     sharedNumPlys = 0;
@@ -33,14 +35,14 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
         // calculate the new board and invert the current player
         // select the move from bid
         // calculate the resulting board for the current move
-        sharedBoard = nimming(nim, numRows, moves[bid]);
+        sharedBoard = nimming(nim, numRows, dev_moves[bid]);
         sharedPlayer = -sharedPlayer;
 
         // check if the game is ended, if yes update the results
         if (!isNotEnded(sharedBoard)) {
             // 0 -> -1
             // 1 -> 1
-            results[bid] = sharedPlayer == -1 ? 0 + (moves[bid] & 127) : 128 + (moves[bid] & 127); // 128 = 1 << 7
+            results[bid] = sharedPlayer == -1 ? 0 + (dev_moves[bid] & 127) : 128 + (dev_moves[bid] & 127); // 128 = 1 << 7
 
             // jump to min/max ending evaluation if bid == 0 and tid == 0
             if (bid == 0)
@@ -60,7 +62,7 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     // declare Nim for this thread
     unsigned int newBoard;
     int player = sharedPlayer;
-    __shared__ unsigned char sharedResults[maxMoves];
+    __shared__ unsigned char sharedResults[NUM_MOVES];
     sharedResults[0] = 16;
     if (stopComputation == 0) {
         // apply tid move
@@ -85,10 +87,10 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
     if (stopComputation == 0) {
         // start to calculate the minmax, store the result in sharedResults
         standard_minmax(newBoard, numRows, player, tid, sharedResults);
-
-        if (tid != 0)
-            return;
     }
+
+    if (tid != 0)
+        return;
 
     // when all secondary threads finished
     __syncthreads();
@@ -97,12 +99,10 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
         // calculate the best move from the shared results
         sharedResults[sharedNumPlys] = 16;
         results[bid] = maxResultArray(sharedResults);
-
-        if (bid != 0)
-            return;
     }
 
-    __syncthreads();
+    if (bid != 0)
+        return;
 
     // insert the termination char
     results[numPlys] = 16;
@@ -110,7 +110,6 @@ __global__ void GPU_minmax(unsigned int nim, unsigned int numRows, unsigned char
 
 // sharedResults is the output
 __device__ void standard_minmax(unsigned int nim, unsigned int numRows, int player, unsigned int tid, unsigned char* sharedResults) {
-    const unsigned int maxMoves = 26;
     const unsigned int maxDepth = 5;
     const unsigned int maxStackSize = 8;
     /*
@@ -135,7 +134,7 @@ __device__ void standard_minmax(unsigned int nim, unsigned int numRows, int play
     stackPush(&stack, maxStackSize, 0, 0, 0, 0, 0, 0, 0, NULL, 16);
 
     // push the first meaningful entry
-    unsigned char evaluations[maxStackSize-1][maxMoves];
+    unsigned char evaluations[maxStackSize-1][NUM_MOVES];
     evaluations[0][0] = 16;
     stackPush(&stack, maxStackSize, nim, -1, 1, 1, 0, -1, stack.stackSize-1, evaluations[0], 16);
 

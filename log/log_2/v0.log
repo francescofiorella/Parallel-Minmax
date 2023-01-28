@@ -1,0 +1,150 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+  0.00      0.00     0.00       77     0.00     0.00  createNimply
+  0.00      0.00     0.00       70     0.00     0.00  destroyNimply
+  0.00      0.00     0.00       50     0.00     0.00  isNotEnded
+  0.00      0.00     0.00       48     0.00     0.00  createStackEntry
+  0.00      0.00     0.00       48     0.00     0.00  stackPop
+  0.00      0.00     0.00       48     0.00     0.00  stackPush
+  0.00      0.00     0.00       38     0.00     0.00  possibleMoves
+  0.00      0.00     0.00       34     0.00     0.00  destroyResult
+  0.00      0.00     0.00       33     0.00     0.00  createResult
+  0.00      0.00     0.00       25     0.00     0.00  destroyNim
+  0.00      0.00     0.00       25     0.00     0.00  nimming
+  0.00      0.00     0.00       24     0.00     0.00  createResultArray
+  0.00      0.00     0.00       24     0.00     0.00  deepcopyNim
+  0.00      0.00     0.00       24     0.00     0.00  destroyMovesArray
+  0.00      0.00     0.00       23     0.00     0.00  resultArrayPush
+  0.00      0.00     0.00        7     0.00     0.00  maxResultArray
+  0.00      0.00     0.00        7     0.00     0.00  minResultArray
+  0.00      0.00     0.00        3     0.00     0.00  printNim
+  0.00      0.00     0.00        1     0.00     0.00  createNim
+  0.00      0.00     0.00        1     0.00     0.00  createStack
+  0.00      0.00     0.00        1     0.00     0.00  destroyStack
+  0.00      0.00     0.00        1     0.00     0.00  minmax
+  0.00      0.00     0.00        1     0.00     0.00  randomStrategy
+
+			Call graph
+
+
+granularity: each sample hit covers 4 byte(s) no time propagated
+
+index % time    self  children    called     name
+                0.00    0.00      77/77          possibleMoves [7]
+[1]      0.0    0.00    0.00      77         createNimply [1]
+-----------------------------------------------
+                0.00    0.00       1/70          main [32]
+                0.00    0.00      17/70          destroyResult [8]
+                0.00    0.00      52/70          destroyMovesArray [14]
+[2]      0.0    0.00    0.00      70         destroyNimply [2]
+-----------------------------------------------
+                0.00    0.00       3/50          main [32]
+                0.00    0.00      47/50          minmax [22]
+[3]      0.0    0.00    0.00      50         isNotEnded [3]
+-----------------------------------------------
+                0.00    0.00      48/48          minmax [22]
+[4]      0.0    0.00    0.00      48         createStackEntry [4]
+-----------------------------------------------
+                0.00    0.00      48/48          minmax [22]
+[5]      0.0    0.00    0.00      48         stackPop [5]
+-----------------------------------------------
+                0.00    0.00      48/48          minmax [22]
+[6]      0.0    0.00    0.00      48         stackPush [6]
+-----------------------------------------------
+                0.00    0.00       1/38          randomStrategy [23]
+                0.00    0.00      37/38          minmax [22]
+[7]      0.0    0.00    0.00      38         possibleMoves [7]
+                0.00    0.00      77/77          createNimply [1]
+-----------------------------------------------
+                0.00    0.00      34/34          minmax [22]
+[8]      0.0    0.00    0.00      34         destroyResult [8]
+                0.00    0.00      17/70          destroyNimply [2]
+-----------------------------------------------
+                0.00    0.00      33/33          minmax [22]
+[9]      0.0    0.00    0.00      33         createResult [9]
+-----------------------------------------------
+                0.00    0.00       1/25          main [32]
+                0.00    0.00      24/25          minmax [22]
+[10]     0.0    0.00    0.00      25         destroyNim [10]
+-----------------------------------------------
+                0.00    0.00       1/25          main [32]
+                0.00    0.00       1/25          randomStrategy [23]
+                0.00    0.00      23/25          minmax [22]
+[11]     0.0    0.00    0.00      25         nimming [11]
+-----------------------------------------------
+                0.00    0.00      24/24          minmax [22]
+[12]     0.0    0.00    0.00      24         createResultArray [12]
+-----------------------------------------------
+                0.00    0.00      24/24          minmax [22]
+[13]     0.0    0.00    0.00      24         deepcopyNim [13]
+-----------------------------------------------
+                0.00    0.00       1/24          randomStrategy [23]
+                0.00    0.00      23/24          minmax [22]
+[14]     0.0    0.00    0.00      24         destroyMovesArray [14]
+                0.00    0.00      52/70          destroyNimply [2]
+-----------------------------------------------
+                0.00    0.00      23/23          minmax [22]
+[15]     0.0    0.00    0.00      23         resultArrayPush [15]
+-----------------------------------------------
+                0.00    0.00       7/7           minmax [22]
+[16]     0.0    0.00    0.00       7         maxResultArray [16]
+-----------------------------------------------
+                0.00    0.00       7/7           minmax [22]
+[17]     0.0    0.00    0.00       7         minResultArray [17]
+-----------------------------------------------
+                0.00    0.00       1/3           randomStrategy [23]
+                0.00    0.00       2/3           main [32]
+[18]     0.0    0.00    0.00       3         printNim [18]
+-----------------------------------------------
+                0.00    0.00       1/1           main [32]
+[19]     0.0    0.00    0.00       1         createNim [19]
+-----------------------------------------------
+                0.00    0.00       1/1           minmax [22]
+[20]     0.0    0.00    0.00       1         createStack [20]
+-----------------------------------------------
+                0.00    0.00       1/1           minmax [22]
+[21]     0.0    0.00    0.00       1         destroyStack [21]
+-----------------------------------------------
+                0.00    0.00       1/1           main [32]
+[22]     0.0    0.00    0.00       1         minmax [22]
+                0.00    0.00      48/48          createStackEntry [4]
+                0.00    0.00      48/48          stackPush [6]
+                0.00    0.00      48/48          stackPop [5]
+                0.00    0.00      47/50          isNotEnded [3]
+                0.00    0.00      37/38          possibleMoves [7]
+                0.00    0.00      34/34          destroyResult [8]
+                0.00    0.00      33/33          createResult [9]
+                0.00    0.00      24/24          deepcopyNim [13]
+                0.00    0.00      24/24          createResultArray [12]
+                0.00    0.00      24/25          destroyNim [10]
+                0.00    0.00      23/23          resultArrayPush [15]
+                0.00    0.00      23/25          nimming [11]
+                0.00    0.00      23/24          destroyMovesArray [14]
+                0.00    0.00       7/7           minResultArray [17]
+                0.00    0.00       7/7           maxResultArray [16]
+                0.00    0.00       1/1           createStack [20]
+                0.00    0.00       1/1           destroyStack [21]
+-----------------------------------------------
+                0.00    0.00       1/1           main [32]
+[23]     0.0    0.00    0.00       1         randomStrategy [23]
+                0.00    0.00       1/38          possibleMoves [7]
+                0.00    0.00       1/25          nimming [11]
+                0.00    0.00       1/3           printNim [18]
+                0.00    0.00       1/24          destroyMovesArray [14]
+-----------------------------------------------
+
+Index by function name
+
+  [19] createNim              [10] destroyNim             [11] nimming
+   [1] createNimply            [2] destroyNimply           [7] possibleMoves
+   [9] createResult            [8] destroyResult          [18] printNim
+  [12] createResultArray      [21] destroyStack           [23] randomStrategy
+  [20] createStack             [3] isNotEnded             [15] resultArrayPush
+   [4] createStackEntry       [16] maxResultArray          [5] stackPop
+  [13] deepcopyNim            [17] minResultArray          [6] stackPush
+  [14] destroyMovesArray      [22] minmax

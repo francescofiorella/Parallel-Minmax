@@ -1,21 +1,21 @@
-==17040== NVPROF is profiling process 17040, command: ./v1.out
-==17040== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
-==17040== Profiling application: ./v1.out
-==17040== Profiling result:
-==17040== Metric result:
+==11420== NVPROF is profiling process 11420, command: ./v1.out
+==11420== Some kernel(s) will be replayed on device 0 in order to collect all events/metrics.
+==11420== Profiling application: ./v1.out
+==11420== Profiling result:
+==11420== Metric result:
 Invocations                               Metric Name                                                    Metric Description         Min         Max         Avg
 Device "NVIDIA Tegra X1 (0)"
     Kernel: GPU_minmax(Nim*, MovesArray*, Nimply*, ResultArray*, Result*)
           1                             sm_efficiency                                               Multiprocessor Activity     100.00%     100.00%     100.00%
-          1                        achieved_occupancy                                                    Achieved Occupancy    0.292468    0.292468    0.292468
-          1                                       ipc                                                          Executed IPC    0.486517    0.486517    0.486517
-          1                                issued_ipc                                                            Issued IPC    0.482944    0.482944    0.482944
+          1                        achieved_occupancy                                                    Achieved Occupancy    0.289650    0.289650    0.289650
+          1                                       ipc                                                          Executed IPC    0.484714    0.484714    0.484714
+          1                                issued_ipc                                                            Issued IPC    0.485697    0.485697    0.485697
           1                             inst_per_warp                                                 Instructions per warp  9.7658e+06  9.7658e+06  9.7658e+06
           1                         branch_efficiency                                                     Branch Efficiency      97.36%      97.36%      97.36%
           1                 warp_execution_efficiency                                             Warp Execution Efficiency      25.99%      25.99%      25.99%
           1         warp_nonpred_execution_efficiency                              Warp Non-Predicated Execution Efficiency      24.77%      24.77%      24.77%
           1                      inst_replay_overhead                                           Instruction Replay Overhead    0.000001    0.000001    0.000001
-          1                    issue_slot_utilization                                                Issue Slot Utilization      11.09%      11.09%      11.09%
+          1                    issue_slot_utilization                                                Issue Slot Utilization      11.15%      11.15%      11.15%
           1      shared_load_transactions_per_request                           Shared Memory Load Transactions Per Request    1.285782    1.285782    1.285782
           1     shared_store_transactions_per_request                          Shared Memory Store Transactions Per Request    1.034247    1.034247    1.034247
           1       local_load_transactions_per_request                            Local Memory Load Transactions Per Request    5.641774    5.641774    5.641774
@@ -24,19 +24,19 @@ Device "NVIDIA Tegra X1 (0)"
           1                 shared_store_transactions                                             Shared Store Transactions        1510        1510        1510
           1                  shared_load_transactions                                              Shared Load Transactions        2713        2713        2713
           1                   local_load_transactions                                               Local Load Transactions   148574431   148574431   148574431
-          1                  local_store_transactions                                              Local Store Transactions    72566957    72566957    72566957
+          1                  local_store_transactions                                              Local Store Transactions    72561256    72561256    72561256
           1                          gst_transactions                                             Global Store Transactions         150         150         150
           1                           global_hit_rate                                     Global Hit Rate in unified l1/tex      99.94%      99.94%      99.94%
-          1                            local_hit_rate                                                        Local Hit Rate      34.45%      34.45%      34.45%
-          1                  gld_requested_throughput                                      Requested Global Load Throughput  5.5880MB/s  5.5880MB/s  5.5880MB/s
-          1                  gst_requested_throughput                                     Requested Global Store Throughput  1.1211MB/s  1.1211MB/s  1.1211MB/s
-          1                            gld_throughput                                                Global Load Throughput  44.701MB/s  44.701MB/s  44.701MB/s
-          1                            gst_throughput                                               Global Store Throughput  8.4561KB/s  8.4561KB/s  8.4551KB/s
-          1                      tex_cache_throughput                                              Unified Cache Throughput  4.4628GB/s  4.4628GB/s  4.4628GB/s
-          1                     local_load_throughput                                          Local Memory Load Throughput  7.9884GB/s  7.9884GB/s  7.9884GB/s
-          1                    local_store_throughput                                         Local Memory Store Throughput  3.9017GB/s  3.9017GB/s  3.9017GB/s
-          1                    shared_load_throughput                                         Shared Memory Load Throughput  611.82KB/s  611.82KB/s  611.82KB/s
-          1                   shared_store_throughput                                        Shared Memory Store Throughput  340.53KB/s  340.53KB/s  340.53KB/s
+          1                            local_hit_rate                                                        Local Hit Rate      34.43%      34.43%      34.43%
+          1                  gld_requested_throughput                                      Requested Global Load Throughput  5.5519MB/s  5.5519MB/s  5.5519MB/s
+          1                  gst_requested_throughput                                     Requested Global Store Throughput  1.1138MB/s  1.1138MB/s  1.1138MB/s
+          1                            gld_throughput                                                Global Load Throughput  44.413MB/s  44.413MB/s  44.413MB/s
+          1                            gst_throughput                                               Global Store Throughput  8.4014KB/s  8.4014KB/s  8.4004KB/s
+          1                      tex_cache_throughput                                              Unified Cache Throughput  4.4339GB/s  4.4339GB/s  4.4339GB/s
+          1                     local_load_throughput                                          Local Memory Load Throughput  7.9368GB/s  7.9368GB/s  7.9368GB/s
+          1                    local_store_throughput                                         Local Memory Store Throughput  3.8762GB/s  3.8762GB/s  3.8762GB/s
+          1                    shared_load_throughput                                         Shared Memory Load Throughput  607.87KB/s  607.87KB/s  607.87KB/s
+          1                   shared_store_throughput                                        Shared Memory Store Throughput  338.33KB/s  338.33KB/s  338.33KB/s
           1                            gld_efficiency                                         Global Memory Load Efficiency      12.50%      12.50%      12.50%
           1                            gst_efficiency                                        Global Memory Store Efficiency   13574.42%   13574.42%   13574.42%
           1                    tex_cache_transactions                                            Unified Cache Transactions    83002158    83002158    83002158
@@ -90,9 +90,9 @@ Device "NVIDIA Tegra X1 (0)"
           1              inst_executed_shared_atomics                  Warp level shared instructions for atom and atom CAS           0           0           0
           1                     inst_executed_tex_ops                                   Warp level instructions for texture           0           0           0
           1                      l2_global_load_bytes       Bytes read from L2 for misses in Unified Cache for global loads       14400       14400       14400
-          1                       l2_local_load_bytes        Bytes read from L2 for misses in Unified Cache for local loads  3117241664  3117241664  3117241664
+          1                       l2_local_load_bytes        Bytes read from L2 for misses in Unified Cache for local loads  3117229664  3117229664  3117229664
           1                     l2_surface_load_bytes      Bytes read from L2 for misses in Unified Cache for surface loads           0           0           0
-          1               l2_local_global_store_bytes   Bytes written to L2 from Unified Cache for local and global stores.  2322147424  2322147424  2322147424
+          1               l2_local_global_store_bytes   Bytes written to L2 from Unified Cache for local and global stores.  2321964992  2321964992  2321964992
           1                 l2_global_reduction_bytes          Bytes written to L2 from Unified cache for global reductions           0           0           0
           1              l2_global_atomic_store_bytes             Bytes written to L2 from Unified cache for global atomics           0           0           0
           1                    l2_surface_store_bytes            Bytes written to L2 from Unified Cache for surface stores.           0           0           0
@@ -109,28 +109,28 @@ Device "NVIDIA Tegra X1 (0)"
           1                   surface_atomic_requests           Total number of surface atomic requests from Multiprocessor           0           0           0
           1                surface_reduction_requests        Total number of surface reduction requests from Multiprocessor           0           0           0
           1                     texture_load_requests             Total number of texture Load requests from Multiprocessor           0           0           0
-          1                          stall_inst_fetch                              Issue Stall Reasons (Instructions Fetch)       4.50%       4.50%       4.50%
-          1                     stall_exec_dependency                            Issue Stall Reasons (Execution Dependency)       8.78%       8.78%       8.78%
-          1                   stall_memory_dependency                                    Issue Stall Reasons (Data Request)      83.81%      83.81%      83.81%
+          1                          stall_inst_fetch                              Issue Stall Reasons (Instructions Fetch)       4.48%       4.48%       4.48%
+          1                     stall_exec_dependency                            Issue Stall Reasons (Execution Dependency)       8.73%       8.73%       8.73%
+          1                   stall_memory_dependency                                    Issue Stall Reasons (Data Request)      83.90%      83.90%      83.90%
           1                             stall_texture                                         Issue Stall Reasons (Texture)       0.00%       0.00%       0.00%
-          1                                stall_sync                                 Issue Stall Reasons (Synchronization)       0.39%       0.39%       0.39%
-          1                               stall_other                                           Issue Stall Reasons (Other)       1.93%       1.93%       1.93%
+          1                                stall_sync                                 Issue Stall Reasons (Synchronization)       0.38%       0.38%       0.38%
+          1                               stall_other                                           Issue Stall Reasons (Other)       1.92%       1.92%       1.92%
           1          stall_constant_memory_dependency                              Issue Stall Reasons (Immediate constant)       0.00%       0.00%       0.00%
           1                           stall_pipe_busy                                       Issue Stall Reasons (Pipe Busy)       0.20%       0.20%       0.20%
           1                     stall_memory_throttle                                 Issue Stall Reasons (Memory Throttle)       0.00%       0.00%       0.00%
-          1                        stall_not_selected                                    Issue Stall Reasons (Not Selected)       0.40%       0.40%       0.40%
+          1                        stall_not_selected                                    Issue Stall Reasons (Not Selected)       0.39%       0.39%       0.39%
           1                  sysmem_read_transactions                                       System Memory Read Transactions           0           0           0
           1                 sysmem_write_transactions                                      System Memory Write Transactions           0           0           0
-          1                      l2_read_transactions                                                  L2 Read Transactions    98622833    98622833    98622833
-          1                     l2_write_transactions                                                 L2 Write Transactions    72567129    72567129    72567129
-          1                     local_memory_overhead                                                 Local Memory Overhead     100.00%     100.00%     100.00%
-          1                        tex_cache_hit_rate                                                Unified Cache Hit Rate      29.50%      29.50%      29.50%
-          1                    l2_tex_read_throughput                                         L2 Throughput (Texture Reads)  5.2407GB/s  5.2407GB/s  5.2407GB/s
-          1                   l2_tex_write_throughput                                        L2 Throughput (Texture Writes)  3.9015GB/s  3.9015GB/s  3.9015GB/s
-          1                  l2_tex_read_transactions                                       L2 Transactions (Texture Reads)    97470288    97470288    97470288
+          1                      l2_read_transactions                                                  L2 Read Transactions    98623005    98623005    98623005
+          1                     l2_write_transactions                                                 L2 Write Transactions    72562987    72562987    72562987
+          1                     local_memory_overhead                                                 Local Memory Overhead     100.04%     100.04%     100.04%
+          1                        tex_cache_hit_rate                                                Unified Cache Hit Rate      29.46%      29.46%      29.46%
+          1                    l2_tex_read_throughput                                         L2 Throughput (Texture Reads)  5.2038GB/s  5.2038GB/s  5.2038GB/s
+          1                   l2_tex_write_throughput                                        L2 Throughput (Texture Writes)  3.8763GB/s  3.8763GB/s  3.8763GB/s
+          1                  l2_tex_read_transactions                                       L2 Transactions (Texture Reads)    97413994    97413994    97413994
           1                 l2_tex_write_transactions                                      L2 Transactions (Texture Writes)    72562965    72562965    72562965
-          1                        l2_read_throughput                                                 L2 Throughput (Reads)  5.3026GB/s  5.3026GB/s  5.3026GB/s
-          1                       l2_write_throughput                                                L2 Throughput (Writes)  3.9017GB/s  3.9017GB/s  3.9017GB/s
+          1                        l2_read_throughput                                                 L2 Throughput (Reads)  5.2684GB/s  5.2684GB/s  5.2684GB/s
+          1                       l2_write_throughput                                                L2 Throughput (Writes)  3.8763GB/s  3.8763GB/s  3.8763GB/s
           1                    sysmem_read_throughput                                         System Memory Read Throughput  0.00000B/s  0.00000B/s  0.00000B/s
           1                   sysmem_write_throughput                                        System Memory Write Throughput  0.00000B/s  0.00000B/s  0.00000B/s
           1                      l2_atomic_throughput                                       L2 Throughput (Atomic requests)  0.00000B/s  0.00000B/s  0.00000B/s
@@ -148,6 +148,6 @@ Device "NVIDIA Tegra X1 (0)"
           1                        flop_hp_efficiency                                            FLOP Efficiency(Peak Half)       0.00%       0.00%       0.00%
           1                                inst_fp_16                                                 HP Instructions(Half)           0           0           0
           1             half_precision_fu_utilization                              Half-Precision Function Unit Utilization    Idle (0)    Idle (0)    Idle (0)
-          1                  eligible_warps_per_cycle                                       Eligible Warps Per Active Cycle    0.514802    0.514802    0.514802
+          1                  eligible_warps_per_cycle                                       Eligible Warps Per Active Cycle    0.517824    0.517824    0.517824
           1                        flop_sp_efficiency                                          FLOP Efficiency(Peak Single)       0.00%       0.00%       0.00%
           1                        flop_dp_efficiency                                          FLOP Efficiency(Peak Double)       0.00%       0.00%       0.00%
