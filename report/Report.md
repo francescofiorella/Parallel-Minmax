@@ -13,7 +13,7 @@
   - [3.3. v1: First CUDA version](#33-v1-first-cuda-version)
   - [3.4. v2: Data structures optimization](#34-v2-data-structures-optimization)
   - [3.5. v3: More levels in shared memory](#35-v3-more-levels-in-shared-memory)
-  - [3.6. v4: Everything in kernel](#36-v4-everything-in-kernel)
+  - [3.6. v4: Memory transactions reduced](#36-v4-memory-transactions-reduced)
 - [4. Results and Analysis](#4-results-and-analysis)
 - [5. Conclusion and Future Work](#5-conclusion-and-future-work)
 - [6. References](#6-references)
@@ -184,7 +184,7 @@ Below is reported a figure that shows the block-level behaviour of the kernel:
 
 ![V3 block schema](v3_block.png)
 
-## 3.6. v4: Everything in kernel
+## 3.6. v4: Memory transactions reduced
 
 The second version of the CUDA algorithm resulted to be the fastest one; however, the overhead added by the memory transactions between the host and the device could be removed.
 
