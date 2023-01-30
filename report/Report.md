@@ -1,6 +1,6 @@
-# Parallel MinMax on Nim
+# Parallel MinMax for Nim
 
-- [Parallel MinMax on Nim](#parallel-minmax-on-nim)
+- [Parallel MinMax for Nim](#parallel-minmax-for-nim)
 - [1. Introduction](#1-introduction)
   - [1.1. Nim](#11-nim)
   - [1.2. Minmax](#12-minmax)
@@ -39,7 +39,7 @@ In other words, the first player will always try to maximize his reward, while t
 
 ## 1.3. Project aim and Alpha-Beta pruning
 
-The aim of the project is to exploit the power of GPUs to compute the best move by creating a parallel version of the minmax algorithm, developed during the Computational Intelligence course; the original implementation of the algorithm was written in Python, and has been adapted to C++ and CUDA in an iterative form (instead of a recursive).
+The aim of the project is exploiting the power of GPUs to compute the optimal move by creating a parallel version of the minmax algorithm, developed during the Computational Intelligence course; the original implementation of the algorithm was written in Python, and has been adapted to C++ and CUDA in an iterative form (instead of a recursive).
 
 During the development of the python version of the algorithm, some optimizations were implemented, in order to improve the performance like alpha-beta pruning and maximum tree depth limit.
 
@@ -214,7 +214,13 @@ The fourth version of the algorithm was the fastest one, as a matter of fact it 
 
 | Board size |  v0   |  v1   |  v2   |  v3   |  v4   |
 | :--------: | :---: | :---: | :---: | :---: | :---: |
+|     2      | 1.00  |       |       |       | << 1  |
+|     3      | 1.00  |       |       |       | << 1  |
+|     4      | 1.00  |       |       |       | 0.46  |
 |     5      | 1.00  | 0.28  | 0.73  | 0.054 | 1.49  |
+|     6      | 1.00  |       |       |       | 1.79  |
+|     7      | 1.00  |       |       |       | 3.26  |
+|     8      |   -   |       |       |       | >> 1  |
 
 A Nim board of the medium size of 5 rows was used to evaluate the best version of the algorithm. Values below 1 denotes better performance of the CPU.
 

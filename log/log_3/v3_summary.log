@@ -1,0 +1,19 @@
+==10697== NVPROF is profiling process 10697, command: ./v3.out
+==10697== Warning: Unified Memory Profiling is not supported on the underlying platform. System requirements for unified memory can be found at: http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#um-requirements
+==10697== Profiling application: ./v3.out
+==10697== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   99.96%  10.407ms         1  10.407ms  10.407ms  10.407ms  GPU_minmax(unsigned int, unsigned int, unsigned char*, unsigned char, unsigned char*)
+                    0.02%  2.5530us         1  2.5530us  2.5530us  2.5530us  [CUDA memcpy DtoH]
+                    0.01%  1.2500us         1  1.2500us  1.2500us  1.2500us  [CUDA memcpy HtoD]
+      API calls:   96.59%  340.00ms         2  170.00ms  22.916us  339.98ms  cudaMalloc
+                    3.01%  10.583ms         2  5.2917ms  75.781us  10.508ms  cudaMemcpy
+                    0.32%  1.1132ms         1  1.1132ms  1.1132ms  1.1132ms  cudaLaunchKernel
+                    0.05%  180.94us         2  90.468us  31.718us  149.22us  cudaFree
+                    0.03%  119.63us        97  1.2330us     677ns  24.479us  cuDeviceGetAttribute
+                    0.00%  9.3230us         1  9.3230us  9.3230us  9.3230us  cuDeviceTotalMem
+                    0.00%  6.5100us         3  2.1700us  1.3540us  3.4370us  cuDeviceGetCount
+                    0.00%  3.2810us         2  1.6400us  1.1460us  2.1350us  cuDeviceGet
+                    0.00%  1.8750us         1  1.8750us  1.8750us  1.8750us  cuDeviceGetName
+                    0.00%  1.5110us         1  1.5110us  1.5110us  1.5110us  cuDeviceGetUuid
+                    0.00%  1.0940us         1  1.0940us  1.0940us  1.0940us  cudaPeekAtLastError
