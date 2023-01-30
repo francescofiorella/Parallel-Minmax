@@ -222,7 +222,7 @@ The fourth version of the algorithm was the fastest one, as a matter of fact it 
 |     7      | 1.00  |   -   |   -   |   -   | 3.26  |
 |     8      |   -   |   -   |   -   |   -   | >> 1  |
 
-Note that the acceleration factor of v4 for board size of 2 and 3 can't be calculated since the profiler precision of the C version wasn't enough to measure the time spent; while, for a board size of 8, v0 was not able to calculate the optimal move in a reasonable time.
+Note that the acceleration factor for board size of 2 and 3 can't be calculated since the profiler precision of the C version wasn't enough to measure the time spent; while, for a board size of 8, v0 was not able to calculate the optimal move in a reasonable time.
 
 The following plot reports the duration of the minmax algorithm for small board sizes, comparing all the versions.
 
