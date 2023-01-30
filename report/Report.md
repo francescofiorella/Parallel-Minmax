@@ -199,9 +199,9 @@ The following table reports the durations in milliseconds of the minmax algorith
 
 |    Board size     |   v0    |   v1   |   v2    |   v3    |   v4    |
 | :---------------: | :-----: | :----: | :-----: | :-----: | :-----: |
-|         2         |  0.00   |   -    |    -    |    -    |  0.16   |
-|         3         |  0.00   |   -    |    -    |    -    |  6.50   |
-|         4         |  10.00  |   -    |    -    |    -    |  21.89  |
+|         2         |  0.00   |  1.40  |  2.76   |  1.17   |  0.16   |
+|         3         |  0.00   | 26.54  |  18.93  |  9.96   |  6.50   |
+|         4         |  10.00  | 118.21 |  31.65  | 110.21  |  21.89  |
 |         5         | 160.00  | 565.56 | 218.10  | 2960.00 | 107.41  |
 |         6         | 810.00  |   -    | 2054.15 |    -    | 452.11  |
 |         7         | 4690.00 |   -    |    -    |    -    | 1438.71 |
@@ -210,35 +210,27 @@ The following table reports the durations in milliseconds of the minmax algorith
 
 Note that for a board size bigger than 5, only the algorithms that were able to calculate the optimal move in a reasonable time are reported; while, for smaller board sizes, the non-reported fields were not relevant.
 
-The fourth version of the algorithm was the fastest one, as a matter of fact it has the biggest speed up if compared to the C version. The acceleration factors have been calculated by dividing the duration of the serial algorithm to the duration of the corresponding CUDA version.
+The fourth version of the algorithm was the fastest one, as a matter of fact it has the biggest speed up if compared to the C version. The acceleration factors have been calculated by dividing the duration of the serial algorithm to the duration of the corresponding CUDA version. A Nim board of the medium size of 5 rows was used to evaluate the best version of the algorithm. Values below 1 denotes better performance of the CPU.
 
 | Board size |  v0   |  v1   |  v2   |  v3   |  v4   |
 | :--------: | :---: | :---: | :---: | :---: | :---: |
-|     2      | 1.00  |       |       |       | << 1  |
-|     3      | 1.00  |       |       |       | << 1  |
-|     4      | 1.00  |       |       |       | 0.46  |
+|     2      | 1.00  | << 1  | << 1  | << 1  | << 1  |
+|     3      | 1.00  | << 1  | << 1  | << 1  | << 1  |
+|     4      | 1.00  | 0.08  | 0.32  | 0.09  | 0.46  |
 |     5      | 1.00  | 0.28  | 0.73  | 0.054 | 1.49  |
-|     6      | 1.00  |       |       |       | 1.79  |
-|     7      | 1.00  |       |       |       | 3.26  |
-|     8      |   -   |       |       |       | >> 1  |
-
-A Nim board of the medium size of 5 rows was used to evaluate the best version of the algorithm. Values below 1 denotes better performance of the CPU.
-
-| Board size |  v0   |  v4   |
-| :--------: | :---: | :---: |
-|     2      | 1.00  | << 1  |
-|     3      | 1.00  | << 1  |
-|     4      | 1.00  | 0.46  |
-|     5      | 1.00  | 1.49  |
-|     6      | 1.00  | 1.79  |
-|     7      | 1.00  | 3.26  |
-|     8      |   -   | >> 1  |
+|     6      | 1.00  |   -   |   -   |   -   | 1.79  |
+|     7      | 1.00  |   -   |   -   |   -   | 3.26  |
+|     8      |   -   |   -   |   -   |   -   | >> 1  |
 
 Note that the acceleration factor of v4 for board size of 2 and 3 can't be calculated since the profiler precision of the C version wasn't enough to measure the time spent; while, for a board size of 8, v0 was not able to calculate the optimal move in a reasonable time.
 
-The duration time of v0 and v4 was included in the following chart to emphasize the tendency of the GPU to progressively outperform the CPU on larger boards.
+The following plot reports the duration of the minmax algorithm for small board sizes, comparing all the versions.
 
 ![Duration comparison plot](duration_plot.png)
+
+The duration time of v0 and v4 was included in the following chart to emphasize the tendency of the GPU to progressively outperform the CPU on larger boards.
+
+![Duration comparison v0 v4 plot](duration_v0_v4_plot.png)
 
 The bar chart below shows a comparison between the number of global and shared transactions (read and write) playing with a board of 5 rows.
 
