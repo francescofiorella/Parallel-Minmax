@@ -24,7 +24,7 @@
 
 Nim is a two-player mathematical game of strategy in which players take turns removing objects from distinct heaps or piles of the board. In the classic version of the game, the board typically consists of several piles of objects such as matchsticks, stones, or coins; each pile contains an increasing odd number of sticks. On each turn, a player must remove at least one object, and may remove any number of objects provided they all come from the same heap/pile. The goal of the game is to be the player to take the last object. The game can be played with any number of piles and any number of objects in each pile.
 
-![Nim board](nim.png)
+![Nim board](./figures/nim.png)
 
 Nim is mostly considered as an impartial game, that can be solved using the Minmax algorithm.
 
@@ -35,7 +35,7 @@ The algorithm recursively evaluates the game tree, assigning a value to each nod
 
 In other words, the first player will always try to maximize his reward, while the second one will always try to minimize it.
 
-![Minmax illustration](minmax.png)
+![Minmax illustration](./figures/minmax.png)
 
 ## 1.3. Project aim and Alpha-Beta pruning
 
@@ -78,7 +78,7 @@ The basis for their implementation is the PV-Split algorithm, in which the paral
 
 Here, I am reporting a picture from the paper that well explain the used technique:
 
-![Minmax schema of the Damjan Strnad and Nikola Guid implementation](paper_one.png)
+![Minmax schema of the Damjan Strnad and Nikola Guid implementation](./figures/paper_one.png)
 
 PV-Split is also used and described by Christine Johnson, Lee Barford, Sergiu M, Dascalu, and Frederick C. Harris, Jr in their paper "CUDA Implementation of Computer Go Game Tree Search".<br>
 They show how this technique is particularly useful for complex games like Go, that have an estimated search space of ≈10^171.
@@ -88,7 +88,7 @@ They adapted the Minmax algorithm to the Reversi game, and in their implementati
 
 Here, I am reporting a visual representation of the technique, taken from the paper:
 
-![Minmax schema of the Kamil Rocki and Reiji Suda implementation](paper_two.png)
+![Minmax schema of the Kamil Rocki and Reiji Suda implementation](./figures/paper_two.png)
 
 The main problem of this implementation is that they executed the sequential part twice, so a proper choice of values "p" and "s" is very important.
 
@@ -136,9 +136,9 @@ Now, the third phase starts, by performing a memory copy from device to host, an
 
 Here are reported two figures that show the grid-level and the block-level behavior of the algorithm:
 
-![V1 grid schema](v1_grid.png)
+![V1 grid schema](./figures/v1_grid.png)
 
-![V1 block schema](v1_block.png)
+![V1 block schema](./figures/v1_block.png)
 
 > Note that each node is a game state, and the lower rectangle represents the standard minmax algorithm.
 
@@ -163,7 +163,7 @@ The Nimply struct has been changed from a tuple of row index, num items to a sim
 The last bit is set to 0 if the value is equal to -1, and 1 if equals to 1.
 This representation is perfect for Nim board with maximum eight rows; for higher rows number, an "unsigned int" type can be used.
 
-![Nim and Nimply representation](v2_representation.png)
+![Nim and Nimply representation](./figures/v2_representation.png)
 
 Thanks to the reduced representation and the union of Nimply and Result, all the array data structures were replaced by some simple static arrays. Regarding the results array, the special value of 16 was used to mark the array termination: it corresponds to the unfeasible move of row index 1 and number of items 0, with a value of -1.
 
@@ -182,7 +182,7 @@ Like the previous version, each move calculated in the CPU is assigned to a diff
 
 Below is reported a figure that shows the block-level behavior of the kernel:
 
-![V3 block schema](v3_block.png)
+![V3 block schema](./figures/v3_block.png)
 
 ## 3.6. v4: Memory transactions reduced
 
@@ -226,15 +226,15 @@ Note that the acceleration factor for board size of 2 and 3 can't be calculated 
 
 The following plot reports the duration of the minmax algorithm for small board sizes, comparing all the versions.
 
-![Duration comparison plot](duration_plot.png)
+![Duration comparison plot](./figures/duration_plot.png)
 
 The duration time of v0 and v4 was included in the following chart to emphasize the tendency of the GPU to progressively outperform the CPU on larger boards.
 
-![Duration comparison v0 v4 plot](duration_v0_v4_plot.png)
+![Duration comparison v0 v4 plot](./figures/duration_v0_v4_plot.png)
 
 The bar chart below shows a comparison between the number of global and shared transactions (read and write) playing with a board of 5 rows.
 
-![Memory comparison bar chart](memory_bar_chart.png)
+![Memory comparison bar chart](./figures/memory_bar_chart.png)
 
 Based on the analysis of the results, these observations were found:
 - The data structure optimization was quite successful, between v1 and v2, the global transactions decreased by 98.98%, while the shared transactions decreased by 63.65%.
