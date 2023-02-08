@@ -10,11 +10,11 @@
 
 > sudo nvprof --print-gpu-trace --log-file ./log/trace.log ./nim.out
 
-### Metric mode
+### Metrics mode
 
 > sudo nvprof --metrics all --log-file ./log/metrics.log ./nim.out
 
-### Event mode
+### Events mode
 
 > sudo nvprof --events all --log-file ./log/events.log ./nim.out
 
